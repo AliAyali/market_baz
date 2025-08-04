@@ -7,7 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.aliayali.market_baz.presentation.login.LoginScreen
+import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
+import com.aliayali.market_baz.presentation.screen.login.LoginScreen
+import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
 
 @Composable
@@ -32,6 +34,18 @@ fun SetupNavigation(
             route = NavigationScreen.Login.route
         ) {
             LoginScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Signup.route
+        ) {
+            SignupScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.ForgotPassword.route
+        ) {
+            ForgotPasswordScreen(navController)
         }
 
     }
