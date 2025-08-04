@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.aliayali.market_baz.presentation.login.LoginScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
 
 @Composable
@@ -24,7 +25,13 @@ fun SetupNavigation(
         composable(
             route = NavigationScreen.Splash.route
         ) {
-            SplashScreen()
+            SplashScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Login.route
+        ) {
+            LoginScreen(navController)
         }
 
     }

@@ -11,17 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.navigation.NavigationScreen
 
-@Preview(
-    showBackground = true,
-    widthDp = 300,
-    heightDp = 600
-)
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    navController: NavController,
+    splashViewModel: SplashViewModel = hiltViewModel(),
+) {
 
     Column(
         Modifier
@@ -46,6 +46,13 @@ fun SplashScreen() {
             null,
             Modifier.align(Alignment.End)
         )
+    }
+
+    if (splashViewModel.delay.value) {
+        navController.navigate(NavigationScreen.Login.route){
+            popUpTo(NavigationScreen.Splash.route) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
 }
