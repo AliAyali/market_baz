@@ -35,7 +35,7 @@ class LoginViewModel @Inject constructor(
                 _error.value = ""
             } else {
                 _user.value = null
-                _error.value = "شماره تلفن یافت نشد"
+                setError("شماره تلفن یافت نشد")
             }
         }
     }

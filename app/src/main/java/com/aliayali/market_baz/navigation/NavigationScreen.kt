@@ -6,6 +6,5 @@ sealed class NavigationScreen(val route: String) {
     object Signup : NavigationScreen("signup")
     object ForgotPassword : NavigationScreen("forgotPassword")
     object Verification : NavigationScreen("verification")
-
     object Home : NavigationScreen("home")
 }

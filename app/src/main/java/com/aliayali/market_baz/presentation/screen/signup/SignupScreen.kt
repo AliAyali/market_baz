@@ -1,22 +1,14 @@
 package com.aliayali.market_baz.presentation.screen.signup
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -40,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,9 +44,8 @@ import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.isValidPhoneNumber
 import com.aliayali.market_baz.core.utils.normalizePhoneNumber
 import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.presentation.ui.AuthenticationHeader
 import com.aliayali.market_baz.ui.theme.IceMist
-import com.aliayali.market_baz.ui.theme.MidnightBlue
-import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun SignupScreen(
@@ -79,7 +69,7 @@ fun SignupScreen(
             if (user == null) {
                 signupViewModel.insertUser(phone, name, password)
                 progress = false
-                navController.navigate(NavigationScreen.Login.route) {
+                navController.navigate(NavigationScreen.Verification.route) {
                     popUpTo(NavigationScreen.Signup.route) { inclusive = true }
                     launchSingleTop = true
                 }
@@ -89,272 +79,222 @@ fun SignupScreen(
             }
         }
     }
-
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(MidnightBlue)
-            .verticalScroll(rememberScrollState())
+    AuthenticationHeader(
+        "ثبت نام کنید",
+        "لطفا برای شروع ثبت نام کنید"
     ) {
+
+        Text(
+            text = error,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End
+        )
+
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            value = name,
+            onValueChange = {
+                name = it
+            },
+            label = {
+                Text(
+                    text = "نام",
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            enabled = true,
+            isError = false,
+            textStyle = TextStyle(
+                textAlign = TextAlign.End
+            ),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Person, null
+                )
+            },
+            shape = RoundedCornerShape(10),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = IceMist,
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            value = phone,
+            onValueChange = {
+                phone = normalizePhoneNumber(it)
+            },
+            label = {
+                Text(
+                    text = "شماره همراه",
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            enabled = true,
+            isError = !isValidPhoneNumber(phone),
+            textStyle = TextStyle(
+                textAlign = TextAlign.Start
+            ),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Phone, null
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            shape = RoundedCornerShape(10),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = IceMist,
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            value = password,
+            onValueChange = {
+                password = it
+            },
+            label = {
+                Text(
+                    text = "رمز",
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            enabled = true,
+            isError = !passwordsMatch,
+            textStyle = TextStyle(
+                textAlign = TextAlign.Start
+            ),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Lock, null
+                )
+            },
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val icon = if (passwordVisible) painterResource(R.drawable.ic_visibility)
+                else painterResource(R.drawable.ic_visibility_off)
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(painter = icon, contentDescription = "Visibility")
+                }
+            },
+            shape = RoundedCornerShape(10),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = IceMist,
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            value = rePassword,
+            onValueChange = { it ->
+                rePassword = it
+            },
+            label = {
+                Text(
+                    text = "رمز عبور را دوباره تایپ کنید",
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            enabled = true,
+            isError = !passwordsMatch,
+            textStyle = TextStyle(
+                textAlign = TextAlign.Start
+            ),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Lock, null
+                )
+            },
+            visualTransformation = if (rePasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val icon = if (rePasswordVisible) painterResource(R.drawable.ic_visibility)
+                else painterResource(R.drawable.ic_visibility_off)
+                IconButton(onClick = { rePasswordVisible = !rePasswordVisible }) {
+                    Icon(painter = icon, contentDescription = "Visibility")
+                }
+            },
+            shape = RoundedCornerShape(10),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = IceMist,
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+
+        Button(
+            onClick = {
+                progress = true
+                signupViewModel.getDataByPhone(phone)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp),
+            enabled = name.isNotBlank() && phone.isNotBlank() &&
+                    password.isNotBlank() && rePassword.isNotBlank() &&
+                    passwordsMatch && isValidPhoneNumber(phone),
+        ) {
+            Row {
+                if (progress)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
+                else
+                    Text(text = "ثبت نام", fontSize = 20.sp)
+            }
+        }
+
+
         Row(
             Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(R.drawable.login_left),
-                contentDescription = null,
-                Modifier.size(130.dp)
-            )
-            Image(
-                painter = painterResource(R.drawable.login_right),
-                contentDescription = null
-            )
-        }
-
-        Text(
-            text = "ثبت نام کنید",
-            color = White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 25.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(5.dp))
-        Text(
-            text = "لطفا برای شروع ثبت نام کنید",
-            color = White,
-            fontSize = 20.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(20.dp))
-
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(
-                    MaterialTheme.colorScheme.background,
-                    RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp)
-                )
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Spacer(Modifier.height(20.dp))
-
             Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
-            )
-
-            TextField(
+                text = "وارد شوید",
                 modifier = Modifier
-                    .fillMaxWidth(),
-                value = name,
-                onValueChange = {
-                    name = it
-                },
-                label = {
-                    Text(
-                        text = "نام",
-                        fontSize = 15.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
-                enabled = true,
-                isError = false,
-                textStyle = TextStyle(
-                    textAlign = TextAlign.End
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Person, null
-                    )
-                },
-                shape = RoundedCornerShape(10),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = IceMist,
-                    focusedIndicatorColor = IceMist,
-                    errorIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
+                    .clickable {
+                        navController.navigate(NavigationScreen.Login.route) {
+                            popUpTo(NavigationScreen.Signup.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                color = MaterialTheme.colorScheme.primary
             )
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = phone,
-                onValueChange = {
-                    phone = normalizePhoneNumber(it)
-                },
-                label = {
-                    Text(
-                        text = "شماره همراه",
-                        fontSize = 15.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
-                enabled = true,
-                isError = !isValidPhoneNumber(phone),
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Start
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Phone, null
-                    )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                shape = RoundedCornerShape(10),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = IceMist,
-                    focusedIndicatorColor = IceMist,
-                    errorIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = "حساب کاربری دارید؟",
+                color = MaterialTheme.colorScheme.tertiary
             )
-
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = password,
-                onValueChange = {
-                    password = it
-                },
-                label = {
-                    Text(
-                        text = "رمز",
-                        fontSize = 15.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
-                enabled = true,
-                isError = !passwordsMatch,
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Start
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Lock, null
-                    )
-                },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val icon = if (passwordVisible) painterResource(R.drawable.ic_visibility)
-                    else painterResource(R.drawable.ic_visibility_off)
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(painter = icon, contentDescription = "Visibility")
-                    }
-                },
-                shape = RoundedCornerShape(10),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = IceMist,
-                    focusedIndicatorColor = IceMist,
-                    errorIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
-            )
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = rePassword,
-                onValueChange = { it ->
-                    rePassword = it
-                },
-                label = {
-                    Text(
-                        text = "رمز عبور را دوباره تایپ کنید",
-                        fontSize = 15.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
-                enabled = true,
-                isError = !passwordsMatch,
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Start
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Lock, null
-                    )
-                },
-                visualTransformation = if (rePasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val icon = if (rePasswordVisible) painterResource(R.drawable.ic_visibility)
-                    else painterResource(R.drawable.ic_visibility_off)
-                    IconButton(onClick = { rePasswordVisible = !rePasswordVisible }) {
-                        Icon(painter = icon, contentDescription = "Visibility")
-                    }
-                },
-                shape = RoundedCornerShape(10),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = IceMist,
-                    focusedIndicatorColor = IceMist,
-                    errorIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
-            )
-
-            Button(
-                onClick = {
-                    progress = true
-                    signupViewModel.getDataByPhone(phone)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                enabled = name.isNotBlank() && phone.isNotBlank() &&
-                        password.isNotBlank() && rePassword.isNotBlank() &&
-                        passwordsMatch && isValidPhoneNumber(phone),
-            ) {
-                Row {
-                    if (progress)
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
-                    else
-                        Text(text = "ثبت نام", fontSize = 20.sp)
-                }
-            }
-
-
-            Row(
-                Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "وارد شوید",
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate(NavigationScreen.Verification.route) {
-                                popUpTo(NavigationScreen.Signup.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        },
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "حساب کاربری دارید؟",
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-            }
-
-            Spacer(Modifier.height(50.dp))
-
         }
+
+        Spacer(Modifier.height(50.dp))
 
     }
 
 }
+
