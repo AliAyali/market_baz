@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.core.utils.isValidPhoneNumber
+import com.aliayali.market_baz.core.utils.normalizePhoneNumber
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
@@ -117,7 +119,7 @@ fun LoginScreen(
                     .fillMaxWidth(),
                 value = phone,
                 onValueChange = {
-                    phone = it
+                    phone = normalizePhoneNumber(it)
                 },
                 label = {
                     Text(
@@ -127,7 +129,7 @@ fun LoginScreen(
                         textAlign = TextAlign.End
                     )
                 },
-                isError = phone.isNotEmpty() && !isPhoneValid,
+                isError = !isValidPhoneNumber(phone),
                 textStyle = TextStyle(
                     textAlign = TextAlign.Start
                 ),
@@ -210,7 +212,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                enabled = phone.isNotBlank() && password.isNotBlank() && isPhoneValid
+                enabled = phone.isNotBlank() && password.isNotBlank() && isValidPhoneNumber(phone)
             ) {
                 Text(
                     text = "ورود",

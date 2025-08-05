@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.core.utils.isValidPhoneNumber
+import com.aliayali.market_baz.core.utils.normalizePhoneNumber
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
@@ -111,7 +113,7 @@ fun ForgotPasswordScreen(
                     .fillMaxWidth(),
                 value = phone,
                 onValueChange = {
-                    phone = it
+                    phone = normalizePhoneNumber(it)
                 },
                 label = {
                     Text(
@@ -121,7 +123,7 @@ fun ForgotPasswordScreen(
                         textAlign = TextAlign.End
                     )
                 },
-                isError = phone.isNotEmpty() && !isPhoneValid,
+                isError = !isValidPhoneNumber(phone),
                 textStyle = TextStyle(
                     textAlign = TextAlign.Start
                 ),
@@ -142,11 +144,16 @@ fun ForgotPasswordScreen(
             )
 
             Button(
-                onClick = {},
+                onClick = {
+                    navController.navigate(NavigationScreen.Verification.route) {
+                        popUpTo(NavigationScreen.ForgotPassword.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                enabled = phone.isNotBlank() && isPhoneValid
+                enabled = phone.isNotBlank() && isValidPhoneNumber(phone)
             ) {
                 Text(
                     text = "ارسال کد",

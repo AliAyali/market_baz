@@ -11,6 +11,7 @@ import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPassword
 import com.aliayali.market_baz.presentation.screen.login.LoginScreen
 import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
+import com.aliayali.market_baz.presentation.screen.verification.VerificationScreen
 
 @Composable
 fun SetupNavigation(
@@ -46,6 +47,12 @@ fun SetupNavigation(
             route = NavigationScreen.ForgotPassword.route
         ) {
             ForgotPasswordScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Verification.route
+        ) {
+            VerificationScreen(navController)
         }
 
     }

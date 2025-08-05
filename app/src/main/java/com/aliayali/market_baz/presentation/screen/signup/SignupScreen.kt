@@ -43,8 +43,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.core.utils.isValidPhoneNumber
+import com.aliayali.market_baz.core.utils.normalizePhoneNumber
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
@@ -53,6 +56,7 @@ import com.aliayali.market_baz.ui.theme.White
 @Composable
 fun SignupScreen(
     navController: NavController,
+    signupViewModel: SignupViewModel = hiltViewModel(),
 ) {
 
     var name by remember { mutableStateOf("") }
@@ -62,11 +66,6 @@ fun SignupScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var rePasswordVisible by remember { mutableStateOf(false) }
     val passwordsMatch = password == rePassword || rePassword.isEmpty()
-    val isPhoneValid = if (phone.startsWith("0")) {
-        phone.length == 11
-    } else {
-        phone.length == 10
-    }
 
     Column(
         Modifier
@@ -159,7 +158,7 @@ fun SignupScreen(
                     .fillMaxWidth(),
                 value = phone,
                 onValueChange = {
-                    phone = it
+                    phone = normalizePhoneNumber(it)
                 },
                 label = {
                     Text(
@@ -170,7 +169,7 @@ fun SignupScreen(
                     )
                 },
                 enabled = true,
-                isError = phone.isNotEmpty() && !isPhoneValid,
+                isError = !isValidPhoneNumber(phone),
                 textStyle = TextStyle(
                     textAlign = TextAlign.Start
                 ),
@@ -289,7 +288,7 @@ fun SignupScreen(
                 shape = RoundedCornerShape(10.dp),
                 enabled = name.isNotBlank() && phone.isNotBlank() &&
                         password.isNotBlank() && rePassword.isNotBlank() &&
-                        passwordsMatch && isPhoneValid
+                        passwordsMatch && isValidPhoneNumber(phone),
             ) {
                 Text(
                     text = "ثبت نام",
