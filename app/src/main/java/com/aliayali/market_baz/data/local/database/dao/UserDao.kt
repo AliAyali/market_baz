@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 
 @Dao
@@ -13,4 +14,7 @@ interface UserDao {
 
     @Query("SELECT * FROM user_table WHERE phone = :phone LIMIT 1")
     suspend fun getUserByPhone(phone: String): UserEntity?
+
+    @Update
+    suspend fun updateUser(user: UserEntity)
 }

@@ -8,6 +8,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase
 data class UserEntity(
     @PrimaryKey val phone: String,
     val name: String?,
-    val isLoggedIn: Boolean = true,
+    val password: String,
+    val isLoggedIn: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
 )

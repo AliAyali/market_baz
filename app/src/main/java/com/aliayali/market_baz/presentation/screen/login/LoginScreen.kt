@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.isValidPhoneNumber
@@ -54,10 +55,13 @@ import com.aliayali.market_baz.ui.theme.White
 @Composable
 fun LoginScreen(
     navController: NavController,
+    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val user by loginViewModel.user
+    val error = loginViewModel.error
 
     Column(
         Modifier
@@ -108,6 +112,13 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Spacer(Modifier.height(20.dp))
+
+            Text(
+                text = error.value,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
 
             TextField(
                 modifier = Modifier
@@ -203,7 +214,16 @@ fun LoginScreen(
             )
 
             Button(
-                onClick = {},
+                onClick = {
+                    loginViewModel.getUserByPhone(phone)
+                    if (user?.password == password) {
+                        navController.navigate(NavigationScreen.Home.route) {
+                            popUpTo(NavigationScreen.Login.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    } else
+                        loginViewModel.setError("رمز اشتباه است")
+                },
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),

@@ -137,7 +137,7 @@ fun SignupScreen(
                 enabled = true,
                 isError = false,
                 textStyle = TextStyle(
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.End
                 ),
                 leadingIcon = {
                     Icon(
@@ -278,6 +278,7 @@ fun SignupScreen(
 
             Button(
                 onClick = {
+                    signupViewModel.insertUser(phone, name, password, false)
                     navController.navigate(NavigationScreen.Login.route) {
                         popUpTo(NavigationScreen.Signup.route) { inclusive = true }
                         launchSingleTop = true

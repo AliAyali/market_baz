@@ -17,4 +17,8 @@ class UserRepositoryImpl @Inject constructor(
         return dao.getUserByPhone(phone)
     }
 
+    override suspend fun updateUser(user: UserEntity) {
+        dao.updateUser(user)
+    }
+
 }

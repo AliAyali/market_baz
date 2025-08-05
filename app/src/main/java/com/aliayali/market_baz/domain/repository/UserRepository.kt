@@ -8,4 +8,5 @@ interface UserRepository {
 
     suspend fun getUserByPhone(phone: String): UserEntity?
 
+    suspend fun updateUser(user: UserEntity)
 }

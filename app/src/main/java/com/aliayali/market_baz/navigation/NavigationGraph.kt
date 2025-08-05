@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
+import com.aliayali.market_baz.presentation.screen.home.HomeScreen
 import com.aliayali.market_baz.presentation.screen.login.LoginScreen
 import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
@@ -53,6 +54,12 @@ fun SetupNavigation(
             route = NavigationScreen.Verification.route
         ) {
             VerificationScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Home.route
+        ) {
+            HomeScreen()
         }
 
     }
