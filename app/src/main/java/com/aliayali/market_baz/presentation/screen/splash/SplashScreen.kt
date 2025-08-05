@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +24,7 @@ fun SplashScreen(
     navController: NavController,
     splashViewModel: SplashViewModel = hiltViewModel(),
 ) {
+    val isLoggedIn by splashViewModel.isLoggedIn.collectAsState()
 
     Column(
         Modifier
@@ -49,10 +52,18 @@ fun SplashScreen(
     }
 
     if (splashViewModel.delay.value) {
-        navController.navigate(NavigationScreen.Login.route){
-            popUpTo(NavigationScreen.Splash.route) { inclusive = true }
-            launchSingleTop = true
+        if (isLoggedIn) {
+            navController.navigate(NavigationScreen.Home.route) {
+                popUpTo(NavigationScreen.Splash.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            navController.navigate(NavigationScreen.Login.route) {
+                popUpTo(NavigationScreen.Splash.route) { inclusive = true }
+                launchSingleTop = true
+            }
         }
+
     }
 
 }

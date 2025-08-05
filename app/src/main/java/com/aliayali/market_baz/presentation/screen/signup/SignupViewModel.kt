@@ -1,5 +1,7 @@
 package com.aliayali.market_baz.presentation.screen.signup
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
@@ -13,10 +15,25 @@ class SignupViewModel @Inject constructor(
     private val repository: UserRepository,
 ) : ViewModel() {
 
-    fun insertUser(phone: String, name: String, password: String, isLoggedIn: Boolean) {
+    private var _user = mutableStateOf<UserEntity?>(null)
+    val user: State<UserEntity?> = _user
+    private var _error = mutableStateOf("")
+    var error: State<String> = _error
+
+    fun insertUser(phone: String, name: String, password: String) {
         viewModelScope.launch {
-            repository.insertUser(UserEntity(phone, name, password, isLoggedIn))
+            repository.insertUser(UserEntity(phone, name, password))
         }
+    }
+
+    fun getDataByPhone(phone: String) {
+        viewModelScope.launch {
+            _user.value = repository.getUserByPhone(phone)
+        }
+    }
+
+    fun setError(error: String) {
+        _error.value = error
     }
 
 }

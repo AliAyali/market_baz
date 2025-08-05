@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,11 +53,7 @@ fun ForgotPasswordScreen(
     navController: NavController,
 ) {
     var phone by remember { mutableStateOf("") }
-    val isPhoneValid = if (phone.startsWith("0")) {
-        phone.length == 11
-    } else {
-        phone.length == 10
-    }
+    var progress by remember { mutableStateOf(false) }
 
     Column(
         Modifier
@@ -145,6 +142,7 @@ fun ForgotPasswordScreen(
 
             Button(
                 onClick = {
+                    progress = true
                     navController.navigate(NavigationScreen.Verification.route) {
                         popUpTo(NavigationScreen.ForgotPassword.route) { inclusive = true }
                         launchSingleTop = true
@@ -155,10 +153,17 @@ fun ForgotPasswordScreen(
                 shape = RoundedCornerShape(10.dp),
                 enabled = phone.isNotBlank() && isValidPhoneNumber(phone)
             ) {
-                Text(
-                    text = "ارسال کد",
-                    fontSize = 20.sp
-                )
+                Row {
+                    if (progress)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    else
+                        Text(
+                            text = "ارسال کد",
+                            fontSize = 20.sp
+                        )
+                }
             }
 
             Row(

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +64,7 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     val user by loginViewModel.user
     val error = loginViewModel.error
+    var progress by loginViewModel.progress
 
     Column(
         Modifier
@@ -215,25 +218,38 @@ fun LoginScreen(
 
             Button(
                 onClick = {
+                    loginViewModel.changeProgress(true)
                     loginViewModel.getUserByPhone(phone)
-                    if (user?.password == password) {
+                    loginViewModel.loginState(true)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                enabled = phone.isNotBlank() && password.isNotBlank() && isValidPhoneNumber(phone)
+            ) {
+                Row {
+                    if (progress)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    else
+                        Text(text = "ورود", fontSize = 20.sp)
+                }
+
+            }
+
+            LaunchedEffect(user) {
+                user?.let {
+                    if (it.password == password) {
                         navController.navigate(NavigationScreen.Home.route) {
                             popUpTo(NavigationScreen.Login.route) { inclusive = true }
                             launchSingleTop = true
                         }
-                    } else
+                    } else {
                         loginViewModel.setError("رمز اشتباه است")
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                enabled = phone.isNotBlank() && password.isNotBlank() && isValidPhoneNumber(phone)
-            ) {
-                Text(
-                    text = "ورود",
-                    fontSize = 20.sp
-                )
+                    }
+                }
             }
+
 
             Row(
                 Modifier

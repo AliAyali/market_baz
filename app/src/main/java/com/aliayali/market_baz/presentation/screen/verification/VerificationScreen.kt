@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.White
@@ -54,6 +56,7 @@ fun VerificationScreen(
 
     var text by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    var progress by remember { mutableStateOf(false) }
 
     Column(
         Modifier
@@ -108,7 +111,7 @@ fun VerificationScreen(
             BasicTextField(
                 value = text,
                 onValueChange = {
-                    if (it.length <= 4 && it.all { char -> char.isDigit() }) {
+                    if (it.length <= 5 && it.all { char -> char.isDigit() }) {
                         text = it
                     }
                 },
@@ -168,7 +171,7 @@ fun VerificationScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                repeat(4) { index ->
+                repeat(5) { index ->
                     Box(
                         modifier = Modifier
                             .size(50.dp)
@@ -187,16 +190,29 @@ fun VerificationScreen(
 
 
             Button(
-                onClick = {},
+                onClick = {
+                    progress = true
+                    navController.navigate(NavigationScreen.Home.route) {
+                        popUpTo(NavigationScreen.Verification.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 enabled = true
             ) {
-                Text(
-                    text = "تایید",
-                    fontSize = 20.sp
-                )
+                Row {
+                    if (progress)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    else
+                        Text(
+                            text = "تایید",
+                            fontSize = 20.sp
+                        )
+                }
             }
 
         }

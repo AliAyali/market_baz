@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,11 +70,31 @@ fun SignupScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var rePasswordVisible by remember { mutableStateOf(false) }
     val passwordsMatch = password == rePassword || rePassword.isEmpty()
+    var progress by remember { mutableStateOf(false) }
+    val user by signupViewModel.user
+    val error by signupViewModel.error
+
+    LaunchedEffect(user, progress) {
+        if (progress) {
+            if (user == null) {
+                signupViewModel.insertUser(phone, name, password)
+                progress = false
+                navController.navigate(NavigationScreen.Login.route) {
+                    popUpTo(NavigationScreen.Signup.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                signupViewModel.setError("این شماره از قبل وجود دارد")
+                progress = false
+            }
+        }
+    }
 
     Column(
         Modifier
             .fillMaxSize()
             .background(MidnightBlue)
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             Modifier
@@ -118,6 +142,13 @@ fun SignupScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Spacer(Modifier.height(20.dp))
+
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
 
             TextField(
                 modifier = Modifier
@@ -278,24 +309,23 @@ fun SignupScreen(
 
             Button(
                 onClick = {
-                    signupViewModel.insertUser(phone, name, password, false)
-                    navController.navigate(NavigationScreen.Login.route) {
-                        popUpTo(NavigationScreen.Signup.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                    progress = true
+                    signupViewModel.getDataByPhone(phone)
                 },
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 enabled = name.isNotBlank() && phone.isNotBlank() &&
                         password.isNotBlank() && rePassword.isNotBlank() &&
                         passwordsMatch && isValidPhoneNumber(phone),
             ) {
-                Text(
-                    text = "ثبت نام",
-                    fontSize = 20.sp
-                )
+                Row {
+                    if (progress)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
+                    else
+                        Text(text = "ثبت نام", fontSize = 20.sp)
+                }
             }
+
 
             Row(
                 Modifier
@@ -307,7 +337,7 @@ fun SignupScreen(
                     text = "وارد شوید",
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(NavigationScreen.Login.route) {
+                            navController.navigate(NavigationScreen.Verification.route) {
                                 popUpTo(NavigationScreen.Signup.route) { inclusive = true }
                                 launchSingleTop = true
                             }
@@ -320,6 +350,8 @@ fun SignupScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
             }
+
+            Spacer(Modifier.height(50.dp))
 
         }
 
