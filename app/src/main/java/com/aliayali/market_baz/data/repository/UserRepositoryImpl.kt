@@ -1,0 +1,20 @@
+package com.aliayali.market_baz.data.repository
+
+import com.aliayali.market_baz.data.local.database.dao.UserDao
+import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.domain.repository.UserRepository
+import javax.inject.Inject
+
+class UserRepositoryImpl @Inject constructor(
+    private val dao: UserDao,
+) : UserRepository {
+
+    override suspend fun insertUser(user: UserEntity) {
+        dao.insertUser(user)
+    }
+
+    override suspend fun getUserByPhone(phone: String): UserEntity? {
+        return dao.getUserByPhone(phone)
+    }
+
+}

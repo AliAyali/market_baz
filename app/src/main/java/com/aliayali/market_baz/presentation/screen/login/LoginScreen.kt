@@ -58,11 +58,6 @@ fun LoginScreen(
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val isPhoneValid = if (phone.startsWith("0")) {
-        phone.length == 11
-    } else {
-        phone.length == 10
-    }
 
     Column(
         Modifier
