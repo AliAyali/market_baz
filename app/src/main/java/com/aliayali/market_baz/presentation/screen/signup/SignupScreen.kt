@@ -69,6 +69,7 @@ fun SignupScreen(
             if (user == null) {
                 signupViewModel.insertUser(phone, name, password)
                 progress = false
+                signupViewModel.savePhone(phone)
                 navController.navigate(NavigationScreen.Verification.route) {
                     popUpTo(NavigationScreen.Signup.route) { inclusive = true }
                     launchSingleTop = true

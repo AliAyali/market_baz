@@ -9,5 +9,6 @@ data class UserEntity(
     @PrimaryKey val phone: String,
     val name: String?,
     val password: String,
+    val address: String = "آدرس تنظیم نشده",
     val createdAt: Long = System.currentTimeMillis(),
 )

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignupViewModel @Inject constructor(
     private val repository: UserRepository,
+    private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
     private var _user = mutableStateOf<UserEntity?>(null)
@@ -34,6 +36,12 @@ class SignupViewModel @Inject constructor(
 
     fun setError(error: String) {
         _error.value = error
+    }
+
+    fun savePhone(phone: String) {
+        viewModelScope.launch {
+            userPreferences.savePhoneNumber(phone)
+        }
     }
 
 }

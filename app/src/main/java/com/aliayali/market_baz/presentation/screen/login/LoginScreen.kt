@@ -185,6 +185,7 @@ fun LoginScreen(
             user?.let {
                 if (it.password == password) {
                     loginViewModel.loginState(true)
+                    loginViewModel.savePhone(phone)
                     navController.navigate(NavigationScreen.Verification.route) {
                         popUpTo(NavigationScreen.Login.route) { inclusive = true }
                         launchSingleTop = true
