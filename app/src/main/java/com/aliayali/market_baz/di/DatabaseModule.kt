@@ -3,6 +3,7 @@ package com.aliayali.market_baz.di
 import android.content.Context
 import androidx.room.Room
 import com.aliayali.market_baz.data.local.database.MyDataBase
+import com.aliayali.market_baz.data.local.database.dao.ProductDao
 import com.aliayali.market_baz.data.local.database.dao.UserDao
 import dagger.Module
 import dagger.Provides
@@ -25,12 +26,18 @@ object DatabaseModule {
             MyDataBase::class.java,
             MyDataBase.DATABASE_NAME
         )
+            .fallbackToDestructiveMigration()
             .build()
     }
 
     @Provides
-    fun provideNoteDao(database: MyDataBase): UserDao {
+    fun provideUserDao(database: MyDataBase): UserDao {
         return database.userDao()
+    }
+
+    @Provides
+    fun provideProductDao(database: MyDataBase): ProductDao {
+        return database.productDao()
     }
 
 }
