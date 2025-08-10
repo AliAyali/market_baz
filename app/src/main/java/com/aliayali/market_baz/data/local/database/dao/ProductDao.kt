@@ -18,7 +18,7 @@ interface ProductDao {
     suspend fun getProductsWithDiscount(): List<ProductEntity>
 
     @Query("SELECT * FROM product_table WHERE categoryId = :categoryId ORDER BY star DESC")
-    suspend fun getProductsByCategorySortedByStar(categoryId: Int): List<ProductEntity>
+    fun getProductsByCategorySortedByStar(categoryId: Int): Flow<List<ProductEntity>>
 
     @Query("SELECT * FROM product_table WHERE id = :productId LIMIT 1")
     suspend fun getProductById(productId: Int): ProductEntity?

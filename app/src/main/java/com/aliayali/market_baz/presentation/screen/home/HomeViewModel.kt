@@ -1,6 +1,7 @@
 package com.aliayali.market_baz.presentation.screen.home
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +28,9 @@ class HomeViewModel @Inject constructor(
     val product: State<List<ProductEntity?>> = _product
 
     private var _phone = mutableStateOf("")
+    private var _category = mutableIntStateOf(0)
+    private val _filteredProducts = mutableStateOf<List<ProductEntity>>(listOf())
+    val filteredProducts: State<List<ProductEntity>> = _filteredProducts
 
     fun getUserByPhone(phone: String) {
         viewModelScope.launch {
@@ -39,6 +43,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
     init {
         viewModelScope.launch {
             userPreferences.phoneNumber.collect { phoneNumber ->
@@ -48,11 +53,22 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+
         viewModelScope.launch {
             productRepository.getAllProducts().collect { products ->
                 _product.value = products
             }
         }
     }
+
+    fun getCategory(categoryId: Int) {
+        _category.intValue = categoryId
+        viewModelScope.launch {
+            productRepository.getProductsByCategorySortedByStar(categoryId).collect { products ->
+                _filteredProducts.value = products
+            }
+        }
+    }
+
 
 }

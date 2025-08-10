@@ -16,7 +16,7 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getProductsWithDiscount(): List<ProductEntity> =
         dao.getProductsWithDiscount()
 
-    override suspend fun getProductsByCategorySortedByStar(categoryId: Int): List<ProductEntity> =
+    override fun getProductsByCategorySortedByStar(categoryId: Int): Flow<List<ProductEntity>> =
         dao.getProductsByCategorySortedByStar(categoryId)
 
     override suspend fun getProductById(productId: Int): ProductEntity? =

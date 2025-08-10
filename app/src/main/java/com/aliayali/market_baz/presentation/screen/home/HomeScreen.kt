@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aliayali.market_baz.R
-import com.aliayali.market_baz.data.model.CategoryDto
+import com.aliayali.market_baz.data.model.ProductCategory
 import com.aliayali.market_baz.presentation.ui.CategoryItem
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
@@ -51,11 +51,11 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
 
-    var categoryList by remember {
-        mutableStateOf(CategoryDto.categoryDto)
-    }
+    var selectedCategory by remember { mutableStateOf(ProductCategory.ALL) }
+    val categories = ProductCategory.entries
     val user = homeViewModel.user.value
-    val product = homeViewModel.product.value
+    val filteredProducts = homeViewModel.filteredProducts.value
+    val allProduct = homeViewModel.product.value
 
     LazyColumn(
         Modifier
@@ -173,7 +173,7 @@ fun HomeScreen(
             LazyRow(
                 reverseLayout = true
             ) {
-                items(product) {
+                items(allProduct) {
                     if ((it?.discount ?: 0) > 0)
                         ProductItemSmallFavorite(it)
                 }
@@ -215,19 +215,23 @@ fun HomeScreen(
                 reverseLayout = true,
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                items(categoryList.size) { index ->
-                    CategoryItem(data = categoryList[index]) {
-                        categoryList = categoryList.mapIndexed { i, item ->
-                            item.copy(selected = i == index)
-                        }
+                items(categories) { category ->
+                    CategoryItem(
+                        data = category,
+                        selected = category == selectedCategory
+                    ) {
+                        homeViewModel.getCategory(category.id)
+                        selectedCategory = category
                     }
                 }
             }
             Spacer(Modifier.height(10.dp))
         }
 
-        items(product) {
-            ProductItemBig(it)
+        items(
+            if (selectedCategory.id == 0) allProduct else filteredProducts
+        ) { product ->
+            ProductItemBig(product)
         }
 
     }
