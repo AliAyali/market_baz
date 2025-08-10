@@ -1,19 +1,34 @@
 package com.aliayali.market_baz.data.local.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertProduct(product: ProductEntity)
+    suspend fun insertProducts(products: ProductEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(products: List<ProductEntity>)
+    @Query("SELECT * FROM product_table WHERE discount > 0")
+    suspend fun getProductsWithDiscount(): List<ProductEntity>
+
+    @Query("SELECT * FROM product_table WHERE categoryId = :categoryId ORDER BY star DESC")
+    suspend fun getProductsByCategorySortedByStar(categoryId: Int): List<ProductEntity>
+
+    @Query("SELECT * FROM product_table WHERE id = :productId LIMIT 1")
+    suspend fun getProductById(productId: Int): ProductEntity?
 
     @Query("SELECT * FROM product_table")
-    suspend fun getAllProducts(): List<ProductEntity>
+    fun getAllProducts(): Flow<List<ProductEntity>>
+
+    @Update
+    suspend fun updateProduct(product: ProductEntity)
+
+    @Delete
+    suspend fun deleteProduct(product: ProductEntity)
 }

@@ -25,6 +25,7 @@ fun SplashScreen(
     splashViewModel: SplashViewModel = hiltViewModel(),
 ) {
     val isLoggedIn by splashViewModel.isLoggedIn.collectAsState()
+    val user = splashViewModel.user.value
 
     Column(
         Modifier
@@ -53,17 +54,22 @@ fun SplashScreen(
 
     if (splashViewModel.delay.value) {
         if (isLoggedIn) {
-            navController.navigate(NavigationScreen.Home.route) {
-                popUpTo(NavigationScreen.Splash.route) { inclusive = true }
-                launchSingleTop = true
-            }
+            if (user?.isAdmin ?: false)
+                navController.navigate(NavigationScreen.Admin.route) {
+                    popUpTo(NavigationScreen.Splash.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            else
+                navController.navigate(NavigationScreen.Home.route) {
+                    popUpTo(NavigationScreen.Splash.route) { inclusive = true }
+                    launchSingleTop = true
+                }
         } else {
             navController.navigate(NavigationScreen.Login.route) {
                 popUpTo(NavigationScreen.Splash.route) { inclusive = true }
                 launchSingleTop = true
             }
         }
-
     }
 
 }

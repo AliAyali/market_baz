@@ -1,6 +1,8 @@
 package com.aliayali.market_baz.di
 
+import com.aliayali.market_baz.data.repository.ProductRepositoryImpl
 import com.aliayali.market_baz.data.repository.UserRepositoryImpl
+import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -15,5 +17,10 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl,
     ): UserRepository
+
+    @Binds
+    abstract fun bindProductRepository(
+        productRepositoryImpl: ProductRepositoryImpl,
+    ): ProductRepository
 
 }

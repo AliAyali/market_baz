@@ -4,8 +4,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,18 +15,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: UserRepository,
+    private val userRepository: UserRepository,
+    private val productRepository: ProductRepository,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
 
+    private val _product = mutableStateOf<List<ProductEntity?>>(listOf())
+    val product: State<List<ProductEntity?>> = _product
+
     private var _phone = mutableStateOf("")
 
     fun getUserByPhone(phone: String) {
         viewModelScope.launch {
-            val result = repository.getUserByPhone(phone)
+            val result = userRepository.getUserByPhone(phone)
             if (result != null) {
                 _user.value = result
             } else {
@@ -40,6 +46,11 @@ class HomeViewModel @Inject constructor(
                     _phone.value = it
                     getUserByPhone(it)
                 }
+            }
+        }
+        viewModelScope.launch {
+            productRepository.getAllProducts().collect { products ->
+                _product.value = products
             }
         }
     }

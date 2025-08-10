@@ -46,7 +46,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     fun setError(error: String) {
         _error.value = error
         changeProgress(false)

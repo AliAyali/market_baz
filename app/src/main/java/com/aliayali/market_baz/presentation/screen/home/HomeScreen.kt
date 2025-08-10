@@ -31,13 +31,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aliayali.market_baz.R
-import com.aliayali.market_baz.data.fakeData.fk.Companion.product
 import com.aliayali.market_baz.data.model.CategoryDto
 import com.aliayali.market_baz.presentation.ui.CategoryItem
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
@@ -49,10 +46,6 @@ import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.SlateGray
 import com.aliayali.market_baz.ui.theme.White
 
-@Preview(
-    showBackground = true,
-    device = Devices.PIXEL_4
-)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
@@ -62,6 +55,7 @@ fun HomeScreen(
         mutableStateOf(CategoryDto.categoryDto)
     }
     val user = homeViewModel.user.value
+    val product = homeViewModel.product.value
 
     LazyColumn(
         Modifier
@@ -180,7 +174,8 @@ fun HomeScreen(
                 reverseLayout = true
             ) {
                 items(product) {
-                    ProductItemSmallFavorite(it)
+                    if ((it?.discount ?: 0) > 0)
+                        ProductItemSmallFavorite(it)
                 }
             }
             Spacer(Modifier.height(30.dp))

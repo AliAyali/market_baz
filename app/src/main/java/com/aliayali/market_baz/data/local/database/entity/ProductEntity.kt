@@ -12,7 +12,7 @@ data class ProductEntity(
     val description: String?,
     val price: Int,
     val discount: Int,
-    val star: Double,
+    val star: Double = 0.0,
     val categoryId: Int,
     val inventory: Int = 0,
 )

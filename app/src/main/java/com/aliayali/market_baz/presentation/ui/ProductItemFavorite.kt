@@ -28,7 +28,7 @@ import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun ProductItemSmallFavorite(
-    data: ProductEntity,
+    data: ProductEntity?,
 ) {
 
     Card(
@@ -47,7 +47,7 @@ fun ProductItemSmallFavorite(
         ) {
 
             Image(
-                painterResource(data.imageUrl),
+                painterResource(data?.imageUrl ?: 0),
                 null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,7 +77,7 @@ fun ProductItemSmallFavorite(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = data.discount.toString(),
+                        text = data?.discount.toString(),
                         fontSize = 15.sp,
                         color = White,
                         fontWeight = FontWeight.Bold

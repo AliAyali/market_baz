@@ -19,7 +19,6 @@ class SplashViewModel @Inject constructor(
     private val repository: UserRepository,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
-
     val isLoggedIn = userPreferences.isLoggedIn.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -31,10 +30,26 @@ class SplashViewModel @Inject constructor(
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
 
+    private var _phone = mutableStateOf("")
+
     init {
+        viewModelScope.launch {
+            userPreferences.phoneNumber.collect { phoneNumber ->
+                phoneNumber?.let {
+                    _phone.value = it
+                    getDataByPhone(it)
+                }
+            }
+        }
         viewModelScope.launch {
             delay(3000)
             _delay.value = true
+        }
+    }
+
+    fun getDataByPhone(phone: String) {
+        viewModelScope.launch {
+            _user.value = repository.getUserByPhone(phone)
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.aliayali.market_baz.presentation.screen.admin.AdminScreen
 import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screen.home.HomeScreen
 import com.aliayali.market_baz.presentation.screen.login.LoginScreen
@@ -60,6 +61,12 @@ fun SetupNavigation(
             route = NavigationScreen.Home.route
         ) {
             HomeScreen()
+        }
+
+        composable(
+            route = NavigationScreen.Admin.route
+        ) {
+            AdminScreen(navController)
         }
 
     }

@@ -34,7 +34,7 @@ import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun ProductItemBig(
-    data: ProductEntity,
+    data: ProductEntity?,
 ) {
     Card(
         modifier = Modifier
@@ -45,7 +45,7 @@ fun ProductItemBig(
     ) {
 
         Image(
-            painterResource(data.imageUrl),
+            painterResource(data?.imageUrl ?: 0),
             null,
             Modifier
                 .fillMaxWidth()
@@ -59,7 +59,7 @@ fun ProductItemBig(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            text = data.name,
+            text = data?.name ?: "",
             textAlign = TextAlign.End
         )
 
@@ -67,7 +67,7 @@ fun ProductItemBig(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            text = "موجودی: ${data.inventory}",
+            text = "موجودی: ${data?.inventory}",
             textAlign = TextAlign.End
         )
 
@@ -86,23 +86,23 @@ fun ProductItemBig(
                     Icons.Default.Star, null, tint = BrightOrange, modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = data.star.toString(), fontWeight = FontWeight.SemiBold
+                    text = data?.star.toString(), fontWeight = FontWeight.SemiBold
                 )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
             ) {
-                if (data.discount > 0) Text(
+                if ((data?.discount ?: -1) > 0) Text(
                     text = calculateDiscountedPrice(
-                        data.price, data.discount
+                        data?.price ?: 0, data?.discount ?: 0
                     ).toString(), fontSize = 18.sp
                 )
                 Text(
-                    text = data.price.toString(),
-                    textDecoration = if (data.discount > 0) TextDecoration.LineThrough
+                    text = data?.price.toString(),
+                    textDecoration = if ((data?.discount ?: -1) > 0) TextDecoration.LineThrough
                     else TextDecoration.None,
-                    color = if (data.discount > 0) CoolSlate else Color.Black,
+                    color = if ((data?.discount ?: -1) > 0) CoolSlate else Color.Black,
                 )
                 Text(
                     text = ":قیمت "
