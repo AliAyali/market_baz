@@ -233,6 +233,5 @@ fun HomeScreen(
         ) { product ->
             ProductItemBig(product)
         }
-
     }
 }
