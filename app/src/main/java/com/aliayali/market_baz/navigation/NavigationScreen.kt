@@ -8,4 +8,7 @@ sealed class NavigationScreen(val route: String) {
     object Verification : NavigationScreen("verification")
     object Home : NavigationScreen("home")
     object Admin : NavigationScreen("admin")
+    object Product : NavigationScreen("product") {
+        fun createRoute(productId: Int) = "$route/$productId"
+    }
 }

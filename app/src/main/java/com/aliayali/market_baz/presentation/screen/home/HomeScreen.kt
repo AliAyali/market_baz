@@ -34,8 +34,10 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.model.ProductCategory
+import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.ui.CategoryItem
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
@@ -48,6 +50,7 @@ import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun HomeScreen(
+    navController: NavController,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
 
@@ -231,7 +234,11 @@ fun HomeScreen(
         items(
             if (selectedCategory.id == 0) allProduct else filteredProducts
         ) { product ->
-            ProductItemBig(product)
+            ProductItemBig(product) {
+                navController.navigate(
+                    NavigationScreen.Product.createRoute(product?.id ?: 0)
+                )
+            }
         }
     }
 }

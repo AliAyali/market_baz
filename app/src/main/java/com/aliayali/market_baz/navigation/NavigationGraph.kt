@@ -11,6 +11,7 @@ import com.aliayali.market_baz.presentation.screen.admin.AdminScreen
 import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screen.home.HomeScreen
 import com.aliayali.market_baz.presentation.screen.login.LoginScreen
+import com.aliayali.market_baz.presentation.screen.product.ProductScreen
 import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
 import com.aliayali.market_baz.presentation.screen.verification.VerificationScreen
@@ -60,13 +61,23 @@ fun SetupNavigation(
         composable(
             route = NavigationScreen.Home.route
         ) {
-            HomeScreen()
+            HomeScreen(navController)
         }
 
         composable(
             route = NavigationScreen.Admin.route
         ) {
             AdminScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Product.route + "/{productId}"
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
+            ProductScreen(
+                navController,
+                productId = productId
+            )
         }
 
     }

@@ -1,6 +1,7 @@
 package com.aliayali.market_baz.presentation.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
+import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.CoolSlate
@@ -35,13 +37,17 @@ import com.aliayali.market_baz.ui.theme.White
 @Composable
 fun ProductItemBig(
     data: ProductEntity?,
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp), colors = CardDefaults.cardColors(
-            containerColor = White
-        ), elevation = CardDefaults.cardElevation(5.dp)
+            .padding(vertical = 10.dp)
+            .clickable {
+                onClick()
+            },
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(5.dp)
     ) {
 
         Image(
@@ -94,12 +100,16 @@ fun ProductItemBig(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
             ) {
                 if ((data?.discount ?: -1) > 0) Text(
-                    text = calculateDiscountedPrice(
-                        data?.price ?: 0, data?.discount ?: 0
-                    ).toString(), fontSize = 18.sp
+                    text = formatPrice(
+                        calculateDiscountedPrice(
+                            data?.price ?: 0,
+                            data?.discount ?: 0
+                        )
+                    ),
+                    fontSize = 18.sp
                 )
                 Text(
-                    text = data?.price.toString(),
+                    text = formatPrice(data?.price ?: 0),
                     textDecoration = if ((data?.discount ?: -1) > 0) TextDecoration.LineThrough
                     else TextDecoration.None,
                     color = if ((data?.discount ?: -1) > 0) CoolSlate else Color.Black,
@@ -108,6 +118,7 @@ fun ProductItemBig(
                     text = ":قیمت "
                 )
             }
+
         }
     }
 }
