@@ -24,7 +24,7 @@ class SignupViewModel @Inject constructor(
 
     fun insertUser(phone: String, name: String, password: String) {
         viewModelScope.launch {
-            repository.insertUser(UserEntity(phone, name, password))
+            repository.insertUser(UserEntity(phone, name = name, password = password))
         }
     }
 

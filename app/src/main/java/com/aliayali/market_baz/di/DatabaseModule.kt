@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.MyDataBase
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
 import com.aliayali.market_baz.data.local.database.dao.UserDao
@@ -45,6 +46,7 @@ object DatabaseModule {
                         tempDb.userDao().insertUser(
                             UserEntity(
                                 phone = "09000000000",
+                                image = R.drawable.user,
                                 name = "admin",
                                 password = "1111",
                                 isAdmin = true

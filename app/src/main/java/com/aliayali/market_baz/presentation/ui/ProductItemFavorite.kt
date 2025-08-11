@@ -2,6 +2,7 @@ package com.aliayali.market_baz.presentation.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,12 +30,16 @@ import com.aliayali.market_baz.ui.theme.White
 @Composable
 fun ProductItemSmallFavorite(
     data: ProductEntity?,
+    onClick: () -> Unit,
 ) {
 
     Card(
         modifier = Modifier
             .padding(10.dp)
-            .size(120.dp),
+            .size(120.dp)
+            .clickable {
+                onClick()
+            },
         colors = CardDefaults.cardColors(
             containerColor = White
         ),

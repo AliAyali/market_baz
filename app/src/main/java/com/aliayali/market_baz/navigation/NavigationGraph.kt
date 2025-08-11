@@ -14,6 +14,7 @@ import com.aliayali.market_baz.presentation.screen.login.LoginScreen
 import com.aliayali.market_baz.presentation.screen.product.ProductScreen
 import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
+import com.aliayali.market_baz.presentation.screen.profile.ProfileScreen
 import com.aliayali.market_baz.presentation.screen.verification.VerificationScreen
 
 @Composable
@@ -78,6 +79,12 @@ fun SetupNavigation(
                 navController,
                 productId = productId
             )
+        }
+
+        composable(
+            route = NavigationScreen.Profile.route
+        ) {
+            ProfileScreen(navController)
         }
 
     }

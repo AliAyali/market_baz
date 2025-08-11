@@ -2,6 +2,7 @@ package com.aliayali.market_baz.presentation.screen.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -117,6 +118,12 @@ fun HomeScreen(
                         .background(IceMist, CircleShape)
                         .padding(15.dp)
                         .size(20.dp)
+                        .clickable {
+                            navController.navigate(NavigationScreen.Profile.route) {
+                                popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
                 )
             }
             Spacer(Modifier.height(30.dp))
@@ -178,7 +185,11 @@ fun HomeScreen(
             ) {
                 items(allProduct) {
                     if ((it?.discount ?: 0) > 0)
-                        ProductItemSmallFavorite(it)
+                        ProductItemSmallFavorite(it) {
+                            navController.navigate(
+                                NavigationScreen.Product.createRoute(it?.id ?: 0)
+                            )
+                        }
                 }
             }
             Spacer(Modifier.height(30.dp))
