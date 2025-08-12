@@ -1,4 +1,4 @@
-package com.aliayali.market_baz.presentation.screen.profile
+package com.aliayali.market_baz.presentation.screen.personalInformation
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,10 +12,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+class PersonalInformationViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
+
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
     private var _phone = mutableStateOf("")
@@ -42,9 +43,30 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun loginState(state: Boolean) {
+    fun changeName(name: String) {
+        val currentUser = _user.value ?: return
         viewModelScope.launch {
-            userPreferences.setLoggedIn(state)
+            val updatedUser = currentUser.copy(name = name)
+            userRepository.updateUser(updatedUser)
+            _user.value = updatedUser
+        }
+    }
+
+    fun changePassword(password: String) {
+        val currentUser = _user.value ?: return
+        viewModelScope.launch {
+            val updatedUser = currentUser.copy(password = password)
+            userRepository.updateUser(updatedUser)
+            _user.value = updatedUser
+        }
+    }
+
+    fun changeImage(image: Int) {
+        val currentUser = _user.value ?: return
+        viewModelScope.launch {
+            val updatedUser = currentUser.copy(image = image)
+            userRepository.updateUser(updatedUser)
+            _user.value = updatedUser
         }
     }
 

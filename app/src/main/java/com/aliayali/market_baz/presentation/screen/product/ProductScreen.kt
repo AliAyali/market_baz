@@ -69,7 +69,7 @@ fun ProductScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(20.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -92,7 +92,7 @@ fun ProductScreen(
                     .padding(9.dp)
                     .clickable {
                         navController.navigate(NavigationScreen.Home.route) {
-                            popUpTo(NavigationScreen.Product.route) { inclusive = true }
+                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
                             launchSingleTop = true
                         }
                     }

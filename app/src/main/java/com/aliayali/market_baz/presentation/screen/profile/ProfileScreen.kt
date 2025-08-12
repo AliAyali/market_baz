@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +43,6 @@ import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.ui.ProfileItem
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.IceMist
-import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun ProfileScreen(
@@ -89,50 +86,15 @@ fun ProfileScreen(
         Spacer(Modifier.height(16.dp))
 
         user?.let {
-            Row(
+            Image(
+                painterResource(user.image),
+                null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = user.name.toString(),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(Modifier.width(40.dp))
-                Box(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(150.dp)
-                ) {
-                    Image(
-                        painterResource(user.image),
-                        null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(CircleShape)
-                            .size(150.dp),
-                        alignment = Alignment.Center
-                    )
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomEnd
-                    ) {
-                        Icon(
-                            Icons.Default.Edit,
-                            null,
-                            modifier = Modifier
-                                .background(BrightOrange, CircleShape)
-                                .padding(9.dp)
-                                .clickable {
-
-                                },
-                            tint = White
-                        )
-                    }
-                }
-            }
+                    .clip(CircleShape)
+                    .size(150.dp),
+                alignment = Alignment.Center
+            )
         }
 
         Spacer(Modifier.height(40.dp))
@@ -142,7 +104,10 @@ fun ProfileScreen(
             "اطلاعات شخصی",
             BrightOrange
         ) {
-
+            navController.navigate(NavigationScreen.PersonalInformation.route) {
+                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
+                launchSingleTop = true
+            }
         }
 
         Spacer(Modifier.height(10.dp))

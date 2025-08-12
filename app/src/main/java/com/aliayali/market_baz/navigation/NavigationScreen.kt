@@ -11,5 +11,8 @@ sealed class NavigationScreen(val route: String) {
     object Product : NavigationScreen("product") {
         fun createRoute(productId: Int) = "$route/$productId"
     }
+
     object Profile : NavigationScreen("profile")
+
+    object PersonalInformation : NavigationScreen("personalInformation")
 }
