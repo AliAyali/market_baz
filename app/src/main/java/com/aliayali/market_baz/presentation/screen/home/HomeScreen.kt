@@ -60,6 +60,7 @@ fun HomeScreen(
     val user = homeViewModel.user.value
     val filteredProducts = homeViewModel.filteredProducts.value
     val allProduct = homeViewModel.product.value
+    val shoppingCardRepositorySize = homeViewModel.shoppingCardRepositorySize.value
 
     LazyColumn(
         Modifier
@@ -82,18 +83,25 @@ fun HomeScreen(
                             .background(MidnightBlue, CircleShape)
                             .padding(15.dp)
                             .size(20.dp)
+                            .clickable {
+                                navController.navigate(NavigationScreen.ShoppingCart.route) {
+                                    popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                     )
-                    Text(
-                        text = "2",
-                        color = White,
-                        modifier = Modifier
-                            .background(
-                                BrightOrange,
-                                CircleShape
-                            )
-                            .padding(horizontal = 7.dp),
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (shoppingCardRepositorySize > 0)
+                        Text(
+                            text = shoppingCardRepositorySize.toString(),
+                            color = White,
+                            modifier = Modifier
+                                .background(
+                                    BrightOrange,
+                                    CircleShape
+                                )
+                                .padding(horizontal = 7.dp),
+                            fontWeight = FontWeight.Bold
+                        )
                 }
 
                 Column(

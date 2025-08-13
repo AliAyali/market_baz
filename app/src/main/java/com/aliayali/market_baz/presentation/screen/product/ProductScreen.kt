@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -19,13 +20,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.navigation.NavigationScreen
@@ -49,6 +55,7 @@ import com.aliayali.market_baz.presentation.ui.QuantitySelector
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.IceMist
+import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.White
 
 @Composable
@@ -57,7 +64,9 @@ fun ProductScreen(
     productId: Int?,
     productViewModel: ProductViewModel = hiltViewModel(),
 ) {
-    productViewModel.getProductById(productId)
+    LaunchedEffect(productId) {
+        productViewModel.getProductById(productId)
+    }
     val product by productViewModel.product
     var quantity by remember { mutableIntStateOf(1) }
     val unitPrice = product?.price ?: 0
@@ -65,6 +74,7 @@ fun ProductScreen(
     val clampedDiscount = discountPercent.coerceIn(0, 100)
     val totalPrice = unitPrice * quantity
     val discountedTotal = calculateDiscountedPrice(totalPrice, clampedDiscount)
+    var alertDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -230,7 +240,9 @@ fun ProductScreen(
         Spacer(Modifier.height(16.dp))
 
         Button(
-            onClick = {},
+            onClick = {
+                alertDialog = true
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -257,6 +269,65 @@ fun ProductScreen(
         repeat(10) {
             CommentItem()
         }
+
+        if (alertDialog)
+            AlertDialog(
+                onDismissRequest = { alertDialog = false },
+                confirmButton = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        TextButton(
+                            onClick = {
+                                productViewModel.insertShoppingCard(
+                                    product = product,
+                                    price = discountedTotal,
+                                    number = quantity
+                                )
+                                alertDialog = false
+                            }
+                        ) {
+                            Text(
+                                text = "بله"
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                alertDialog = false
+                            }
+                        ) {
+                            Text(
+                                text = "خیر"
+                            )
+                        }
+                    }
+                },
+                title = {
+                    Text(
+                        text = "سبد خرید",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                },
+                text = {
+                    Text(
+                        text = "به سبد خرید اضافه شود؟",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                },
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.shopping),
+                        null,
+                        tint = MidnightBlue,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                shape = RoundedCornerShape(10.dp)
+            )
 
     }
 }

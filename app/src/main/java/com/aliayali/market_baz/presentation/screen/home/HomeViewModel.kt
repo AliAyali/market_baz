@@ -9,6 +9,7 @@ import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.ProductRepository
+import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,7 +20,11 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
     private val userPreferences: UserPreferences,
+    private val shoppingCardRepository: ShoppingCardRepository,
 ) : ViewModel() {
+
+    private val _shoppingCardRepositorySize = mutableIntStateOf(0)
+    val shoppingCardRepositorySize: State<Int> = _shoppingCardRepositorySize
 
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
@@ -57,6 +62,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             productRepository.getAllProducts().collect { products ->
                 _product.value = products
+            }
+        }
+
+        viewModelScope.launch {
+            shoppingCardRepository.getAllItems().collect { items ->
+                _shoppingCardRepositorySize.intValue = items.size
             }
         }
     }

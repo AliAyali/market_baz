@@ -14,6 +14,7 @@ import com.aliayali.market_baz.presentation.screen.login.LoginScreen
 import com.aliayali.market_baz.presentation.screen.personalInformation.PersonalInformationScreen
 import com.aliayali.market_baz.presentation.screen.product.ProductScreen
 import com.aliayali.market_baz.presentation.screen.profile.ProfileScreen
+import com.aliayali.market_baz.presentation.screen.shoppingCart.ShoppingCartScreen
 import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
 import com.aliayali.market_baz.presentation.screen.verification.VerificationScreen
@@ -92,6 +93,12 @@ fun SetupNavigation(
             route = NavigationScreen.PersonalInformation.route
         ) {
             PersonalInformationScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.ShoppingCart.route
+        ) {
+            ShoppingCartScreen(navController)
         }
 
     }

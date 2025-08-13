@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.MyDataBase
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
+import com.aliayali.market_baz.data.local.database.dao.ShoppingCardDao
 import com.aliayali.market_baz.data.local.database.dao.UserDao
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import dagger.Module
@@ -66,6 +67,11 @@ object DatabaseModule {
     @Provides
     fun provideProductDao(database: MyDataBase): ProductDao {
         return database.productDao()
+    }
+
+    @Provides
+    fun provideShoppingCardDao(database: MyDataBase): ShoppingCardDao {
+        return database.shoppingCardDao()
     }
 
 }

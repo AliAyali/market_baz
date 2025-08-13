@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -127,7 +126,10 @@ fun ProfileScreen(
             "سبد خرید",
             Color(0xFF369BFF)
         ) {
-
+            navController.navigate(NavigationScreen.ShoppingCart.route) {
+                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                launchSingleTop = true
+            }
         }
 
         Spacer(Modifier.height(10.dp))

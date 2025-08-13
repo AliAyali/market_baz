@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
