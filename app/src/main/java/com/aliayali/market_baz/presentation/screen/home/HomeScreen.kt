@@ -39,7 +39,7 @@ import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.model.ProductCategory
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.ui.CategoryItem
+import com.aliayali.market_baz.presentation.components.CategoryItem
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.presentation.ui.SearchTextField

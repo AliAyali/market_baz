@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -49,7 +50,7 @@ import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.ui.CommentItem
+import com.aliayali.market_baz.presentation.components.CommentItem
 import com.aliayali.market_baz.presentation.ui.LineBox
 import com.aliayali.market_baz.presentation.ui.QuantitySelector
 import com.aliayali.market_baz.ui.theme.BrightOrange
@@ -64,10 +65,16 @@ fun ProductScreen(
     productId: Int?,
     productViewModel: ProductViewModel = hiltViewModel(),
 ) {
+    val product by productViewModel.product
+    val favorite by productViewModel.isFavorite
     LaunchedEffect(productId) {
         productViewModel.getProductById(productId)
     }
-    val product by productViewModel.product
+    LaunchedEffect(product) {
+        product?.let {
+            productViewModel.checkIfFavorite(it.id)
+        }
+    }
     var quantity by remember { mutableIntStateOf(1) }
     val unitPrice = product?.price ?: 0
     val discountPercent = product?.discount ?: 0
@@ -86,27 +93,52 @@ fun ProductScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "جزئیات",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(Modifier.width(20.dp))
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                null,
-                modifier = Modifier
-                    .background(IceMist, CircleShape)
-                    .padding(9.dp)
-                    .clickable {
-                        navController.navigate(NavigationScreen.Home.route) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                            launchSingleTop = true
+            if (favorite)
+                Icon(
+                    Icons.Outlined.Favorite,
+                    null,
+                    Modifier
+                        .size(30.dp)
+                        .clickable {
+                            productViewModel.toggleFavorite(product)
+                        },
+                    tint = Color(0xFFFF3434)
+                )
+            else
+                Icon(
+                    painterResource(R.drawable.outline_favorite),
+                    null,
+                    Modifier
+                        .size(30.dp)
+                        .clickable {
+                            productViewModel.toggleFavorite(product)
+                        },
+                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "جزئیات",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.width(20.dp))
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    null,
+                    modifier = Modifier
+                        .background(IceMist, CircleShape)
+                        .padding(9.dp)
+                        .clickable {
+                            navController.navigate(NavigationScreen.Home.route) {
+                                popUpTo(NavigationScreen.Home.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
                         }
-                    }
-            )
+                )
+            }
         }
 
         Spacer(Modifier.height(20.dp))

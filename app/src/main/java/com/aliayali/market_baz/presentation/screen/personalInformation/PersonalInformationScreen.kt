@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.ui.ItemImageUser
+import com.aliayali.market_baz.presentation.components.ItemImageUser
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.SlateGray

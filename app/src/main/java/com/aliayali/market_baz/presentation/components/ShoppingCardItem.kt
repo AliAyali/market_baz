@@ -1,4 +1,4 @@
-package com.aliayali.market_baz.presentation.ui
+package com.aliayali.market_baz.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

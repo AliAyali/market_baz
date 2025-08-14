@@ -1,8 +1,10 @@
 package com.aliayali.market_baz.di
 
+import com.aliayali.market_baz.data.repository.FavoriteRepositoryImpl
 import com.aliayali.market_baz.data.repository.ProductRepositoryImpl
 import com.aliayali.market_baz.data.repository.ShoppingCardRepositoryImpl
 import com.aliayali.market_baz.data.repository.UserRepositoryImpl
+import com.aliayali.market_baz.domain.repository.FavoriteRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
@@ -29,5 +31,10 @@ abstract class RepositoryModule {
     abstract fun bindShoppingCardRepository(
         shoppingCardRepositoryImpl: ShoppingCardRepositoryImpl,
     ): ShoppingCardRepository
+
+    @Binds
+    abstract fun bindFavoriteRepository(
+        favoriteRepositoryImpl: FavoriteRepositoryImpl,
+    ): FavoriteRepository
 
 }

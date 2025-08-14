@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.aliayali.market_baz.presentation.screen.admin.AdminScreen
+import com.aliayali.market_baz.presentation.screen.favorite.FavoriteScreen
 import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screen.home.HomeScreen
 import com.aliayali.market_baz.presentation.screen.login.LoginScreen
@@ -99,6 +100,12 @@ fun SetupNavigation(
             route = NavigationScreen.ShoppingCart.route
         ) {
             ShoppingCartScreen(navController)
+        }
+
+        composable(
+            route = NavigationScreen.Favorite.route
+        ) {
+            FavoriteScreen(navController)
         }
 
     }

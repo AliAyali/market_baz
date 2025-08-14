@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.ui.ShoppingCardItem
+import com.aliayali.market_baz.presentation.components.ShoppingCardItem
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
