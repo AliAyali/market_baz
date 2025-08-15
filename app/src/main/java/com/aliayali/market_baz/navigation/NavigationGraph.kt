@@ -7,18 +7,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.aliayali.market_baz.presentation.screen.admin.AdminScreen
-import com.aliayali.market_baz.presentation.screen.favorite.FavoriteScreen
-import com.aliayali.market_baz.presentation.screen.forgotPassword.ForgotPasswordScreen
-import com.aliayali.market_baz.presentation.screen.home.HomeScreen
-import com.aliayali.market_baz.presentation.screen.login.LoginScreen
-import com.aliayali.market_baz.presentation.screen.personalInformation.PersonalInformationScreen
-import com.aliayali.market_baz.presentation.screen.product.ProductScreen
-import com.aliayali.market_baz.presentation.screen.profile.ProfileScreen
-import com.aliayali.market_baz.presentation.screen.shoppingCart.ShoppingCartScreen
-import com.aliayali.market_baz.presentation.screen.signup.SignupScreen
-import com.aliayali.market_baz.presentation.screen.splash.SplashScreen
-import com.aliayali.market_baz.presentation.screen.verification.VerificationScreen
+import com.aliayali.market_baz.presentation.screens.admin.AdminScreen
+import com.aliayali.market_baz.presentation.screens.favorite.FavoriteScreen
+import com.aliayali.market_baz.presentation.screens.forgotPassword.ForgotPasswordScreen
+import com.aliayali.market_baz.presentation.screens.home.HomeScreen
+import com.aliayali.market_baz.presentation.screens.login.LoginScreen
+import com.aliayali.market_baz.presentation.screens.personalInformation.PersonalInformationScreen
+import com.aliayali.market_baz.presentation.screens.product.ProductScreen
+import com.aliayali.market_baz.presentation.screens.profile.ProfileScreen
+import com.aliayali.market_baz.presentation.screens.shoppingCart.ShoppingCartScreen
+import com.aliayali.market_baz.presentation.screens.signup.SignupScreen
+import com.aliayali.market_baz.presentation.screens.splash.SplashScreen
+import com.aliayali.market_baz.presentation.screens.verification.VerificationScreen
 
 @Composable
 fun SetupNavigation(
