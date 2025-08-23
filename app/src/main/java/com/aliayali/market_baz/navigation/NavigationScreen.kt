@@ -17,4 +17,5 @@ sealed class NavigationScreen(val route: String) {
     object PersonalInformation : NavigationScreen("personalInformation")
     object ShoppingCart : NavigationScreen("shoppingCart")
     object Favorite : NavigationScreen("favorite")
+    object Map : NavigationScreen("map")
 }

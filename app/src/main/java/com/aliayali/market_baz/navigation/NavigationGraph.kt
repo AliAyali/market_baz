@@ -12,6 +12,7 @@ import com.aliayali.market_baz.presentation.screens.favorite.FavoriteScreen
 import com.aliayali.market_baz.presentation.screens.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screens.home.HomeScreen
 import com.aliayali.market_baz.presentation.screens.login.LoginScreen
+import com.aliayali.market_baz.presentation.screens.map.MapScreen
 import com.aliayali.market_baz.presentation.screens.personalInformation.PersonalInformationScreen
 import com.aliayali.market_baz.presentation.screens.product.ProductScreen
 import com.aliayali.market_baz.presentation.screens.profile.ProfileScreen
@@ -108,6 +109,11 @@ fun SetupNavigation(
             FavoriteScreen(navController)
         }
 
+        composable(
+            route = NavigationScreen.Map.route
+        ) {
+            MapScreen(navController)
+        }
     }
 
 }

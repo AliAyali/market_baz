@@ -116,7 +116,10 @@ fun ProfileScreen(
             "آدرس",
             Color(0xFF413DFB)
         ) {
-
+            navController.navigate(NavigationScreen.Map.route) {
+                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                launchSingleTop = true
+            }
         }
 
         Spacer(Modifier.height(10.dp))
