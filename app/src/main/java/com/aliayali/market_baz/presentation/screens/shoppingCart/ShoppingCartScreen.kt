@@ -149,7 +149,10 @@ fun ShoppingCartScreen(
                 Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = {
-
+                        navController.navigate(NavigationScreen.Home.route) {
+                            popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
