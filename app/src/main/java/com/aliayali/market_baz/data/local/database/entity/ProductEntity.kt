@@ -15,4 +15,5 @@ data class ProductEntity(
     val star: Double = 0.0,
     val categoryId: Int,
     val inventory: Int = 0,
+    val numberOfComments: Int = 0,
 )
