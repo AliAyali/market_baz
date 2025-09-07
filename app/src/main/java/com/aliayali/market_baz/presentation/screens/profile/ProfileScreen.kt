@@ -116,7 +116,7 @@ fun ProfileScreen(
             "آدرس",
             Color(0xFF413DFB)
         ) {
-            navController.navigate(NavigationScreen.Map.route) {
+            navController.navigate(NavigationScreen.Address.route) {
                 popUpTo(NavigationScreen.Profile.route) { inclusive = true }
                 launchSingleTop = true
             }
