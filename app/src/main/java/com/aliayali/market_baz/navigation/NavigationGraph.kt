@@ -7,12 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.aliayali.market_baz.presentation.screens.addNewAddress.AddNewAddressScreen
+import com.aliayali.market_baz.presentation.screens.address.AddressScreen
 import com.aliayali.market_baz.presentation.screens.admin.AdminScreen
 import com.aliayali.market_baz.presentation.screens.favorite.FavoriteScreen
 import com.aliayali.market_baz.presentation.screens.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screens.home.HomeScreen
 import com.aliayali.market_baz.presentation.screens.login.LoginScreen
-import com.aliayali.market_baz.presentation.screens.address.AddressScreen
 import com.aliayali.market_baz.presentation.screens.personalInformation.PersonalInformationScreen
 import com.aliayali.market_baz.presentation.screens.product.ProductScreen
 import com.aliayali.market_baz.presentation.screens.profile.ProfileScreen
@@ -114,6 +115,13 @@ fun SetupNavigation(
         ) {
             AddressScreen(navController)
         }
+
+        composable(
+            route = NavigationScreen.AddNewAddress.route
+        ) {
+            AddNewAddressScreen(navController)
+        }
+
     }
 
 }

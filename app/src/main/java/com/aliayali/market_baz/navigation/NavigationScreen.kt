@@ -18,4 +18,5 @@ sealed class NavigationScreen(val route: String) {
     object ShoppingCart : NavigationScreen("shoppingCart")
     object Favorite : NavigationScreen("favorite")
     object Address : NavigationScreen("address")
+    object AddNewAddress : NavigationScreen("addNewAddress")
 }
