@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.MyDataBase
+import com.aliayali.market_baz.data.local.database.dao.AddressDao
 import com.aliayali.market_baz.data.local.database.dao.FavoriteDao
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
 import com.aliayali.market_baz.data.local.database.dao.ShoppingCardDao
@@ -78,6 +79,11 @@ object DatabaseModule {
     @Provides
     fun provideFavoriteDao(database: MyDataBase): FavoriteDao {
         return database.favoriteDao()
+    }
+
+    @Provides
+    fun provideAddressDao(database: MyDataBase): AddressDao {
+        return database.addressDao()
     }
 
 }

@@ -15,14 +15,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.aliayali.market_baz.ui.theme.BrightOrange
 
 @Composable
@@ -34,7 +36,7 @@ fun AddressItem(
     onClick: () -> Unit,
 ) {
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
@@ -45,11 +47,13 @@ fun AddressItem(
             .height(80.dp)
             .clickable {
                 onClick()
-            },
-        horizontalArrangement = Arrangement.SpaceBetween
+            }
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp, vertical = 5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
                 Icon(
@@ -70,23 +74,20 @@ fun AddressItem(
                     }
                 )
             }
-        }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
             Text(
-                modifier = Modifier.fillMaxWidth(),
                 text = title,
                 fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.End
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = detail,
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                fontSize = 20.sp
             )
         }
-
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp),
+            text = detail,
+            textAlign = TextAlign.End
+        )
     }
 
 }
