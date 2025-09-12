@@ -91,7 +91,12 @@ fun AddressScreen(
             contentAlignment = Alignment.BottomCenter
         ) {
             Button(
-                onClick = {},
+                onClick = {
+                    navController.navigate(NavigationScreen.AddNewAddress.route) {
+                        popUpTo(NavigationScreen.Address.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp, vertical = 10.dp),
