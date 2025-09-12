@@ -1,8 +1,77 @@
 package com.aliayali.market_baz.presentation.screens.address
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import jakarta.inject.Inject
+import androidx.lifecycle.viewModelScope
+import com.aliayali.market_baz.data.local.database.entity.AddressEntity
+import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.domain.repository.AddressRepository
+import com.aliayali.market_baz.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddressViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel
+class AddressViewModel @Inject constructor(
+    private val addressRepository: AddressRepository,
+    private val userRepository: UserRepository,
+    private val userPreferences: UserPreferences,
+) : ViewModel() {
+
+    private val _addresses = MutableStateFlow<List<AddressEntity>>(emptyList())
+    val addresses: StateFlow<List<AddressEntity>> = _addresses.asStateFlow()
+    private val _user = mutableStateOf<UserEntity?>(null)
+    val user: State<UserEntity?> = _user
+    private var _phone = mutableStateOf("")
+
+    init {
+        viewModelScope.launch {
+            addressRepository.getAllAddresses().collect { list ->
+                _addresses.value = list
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferences.phoneNumber.collect { phoneNumber ->
+                phoneNumber?.let {
+                    _phone.value = it
+                    getUserByPhone(it)
+                }
+            }
+        }
+    }
+
+    fun deleteAddress(address: AddressEntity) {
+        viewModelScope.launch {
+            addressRepository.deleteAddress(address)
+        }
+    }
+
+    fun getUserByPhone(phone: String) {
+        viewModelScope.launch {
+            val result = userRepository.getUserByPhone(phone)
+            if (result != null) {
+                _user.value = result
+            } else {
+                _user.value = null
+            }
+        }
+    }
+
+    fun updateUserAddress(newAddress: String) {
+        viewModelScope.launch {
+            _user.value?.let { currentUser ->
+                val updatedUser = currentUser.copy(address = newAddress)
+                _user.value = updatedUser
+                userRepository.updateUser(updatedUser)
+            }
+        }
+    }
+
 
 }

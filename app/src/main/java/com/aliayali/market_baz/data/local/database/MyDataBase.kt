@@ -38,6 +38,6 @@ abstract class MyDataBase : RoomDatabase() {
         const val SHOPPING_CARD_TABLE = "shopping_card_table"
         const val FAVORITE_TABLE = "favorites_table"
         const val ADDRESS_TABLE = "address_table"
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -105,6 +107,7 @@ fun HomeScreen(
                 }
 
                 Column(
+                    modifier = Modifier.width(200.dp),
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
@@ -113,11 +116,14 @@ fun HomeScreen(
                         fontSize = 18.sp
                     )
                     Text(
-                        text = user?.address ?: "null",
+                        text = user?.address ?: "تنظیم نشده",
                         color = SlateGray,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        maxLines = 2,
+                        textAlign = TextAlign.End
                     )
                 }
+
 
                 Image(
                     painterResource(R.drawable.menu),

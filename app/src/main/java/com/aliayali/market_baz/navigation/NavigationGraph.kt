@@ -117,9 +117,13 @@ fun SetupNavigation(
         }
 
         composable(
-            route = NavigationScreen.AddNewAddress.route
-        ) {
-            AddNewAddressScreen(navController)
+            route = NavigationScreen.AddNewAddress.route + "/{AddressId}"
+        ) { backStackEntry ->
+            val addressId = backStackEntry.arguments?.getString("AddressId")?.toIntOrNull() ?: 0
+            AddNewAddressScreen(
+                navController,
+                addressId = addressId
+            )
         }
 
     }
