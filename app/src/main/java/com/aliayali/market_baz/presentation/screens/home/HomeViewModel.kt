@@ -48,7 +48,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     init {
         viewModelScope.launch {
             userPreferences.phoneNumber.collect { phoneNumber ->
