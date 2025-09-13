@@ -12,6 +12,6 @@ data class UserEntity(
     val name: String?,
     val password: String,
     val address: String = "آدرس تنظیم نشده",
-    val isAdmin: Boolean = false,
+    val isAdmin: Boolean = true,
     val createdAt: Long = System.currentTimeMillis(),
 )

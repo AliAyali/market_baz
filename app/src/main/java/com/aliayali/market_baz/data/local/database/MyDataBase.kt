@@ -4,11 +4,13 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.aliayali.market_baz.data.local.database.MyDataBase.Companion.DATABASE_VERSION
 import com.aliayali.market_baz.data.local.database.dao.AddressDao
+import com.aliayali.market_baz.data.local.database.dao.CommentDao
 import com.aliayali.market_baz.data.local.database.dao.FavoriteDao
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
 import com.aliayali.market_baz.data.local.database.dao.ShoppingCardDao
 import com.aliayali.market_baz.data.local.database.dao.UserDao
 import com.aliayali.market_baz.data.local.database.entity.AddressEntity
+import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
@@ -20,7 +22,8 @@ import com.aliayali.market_baz.data.local.database.entity.UserEntity
         ProductEntity::class,
         ShoppingCardEntity::class,
         FavoriteEntity::class,
-        AddressEntity::class
+        AddressEntity::class,
+        CommentEntity::class
     ],
     version = DATABASE_VERSION
 )
@@ -30,6 +33,7 @@ abstract class MyDataBase : RoomDatabase() {
     abstract fun shoppingCardDao(): ShoppingCardDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun addressDao(): AddressDao
+    abstract fun commentDao(): CommentDao
 
     companion object {
         const val DATABASE_NAME = "market_db"
@@ -38,6 +42,7 @@ abstract class MyDataBase : RoomDatabase() {
         const val SHOPPING_CARD_TABLE = "shopping_card_table"
         const val FAVORITE_TABLE = "favorites_table"
         const val ADDRESS_TABLE = "address_table"
-        const val DATABASE_VERSION = 3
+        const val COMMENT_TABLE = "comment_table"
+        const val DATABASE_VERSION = 7
     }
 }

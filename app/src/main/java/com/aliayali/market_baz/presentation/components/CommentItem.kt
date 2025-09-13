@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -45,7 +46,7 @@ fun CommentItem() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Default.MoreVert,
+                Icons.Default.Delete,
                 null
             )
             Text(
