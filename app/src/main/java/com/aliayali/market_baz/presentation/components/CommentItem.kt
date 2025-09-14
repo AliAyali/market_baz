@@ -1,6 +1,7 @@
 package com.aliayali.market_baz.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,29 +11,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.ui.theme.IceMist
 
-@Preview(
-    showBackground = true,
-    widthDp = 500,
-    heightDp = 1000
-)
 @Composable
-fun CommentItem() {
+fun CommentItem(
+    comment: CommentEntity,
+    userPhone: String,
+    isAdmin: Boolean,
+    onDelete: () -> Unit,
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 10.dp)
             .background(
                 IceMist,
                 shape = RoundedCornerShape(10.dp)
@@ -44,22 +47,63 @@ fun CommentItem() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.MoreVert,
-                null
-            )
+            if (isAdmin || comment.userPhone == userPhone) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        showDialog = true
+                    }
+                )
+            }
+
             Text(
-                text = "نام کاربری"
+                text = comment.username
             )
         }
 
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "متن",
+            text = comment.detail,
             Modifier.fillMaxWidth(),
             textAlign = TextAlign.End
         )
     }
 
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    text = "حذف نظر",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            text = {
+                Text(
+                    text = "آیا مطمئن هستید که می‌خواهید این نظر را حذف کنید؟",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                        showDialog = false
+                    }
+                ) {
+                    Text("بله")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("خیر")
+                }
+            }
+        )
+    }
 }
+

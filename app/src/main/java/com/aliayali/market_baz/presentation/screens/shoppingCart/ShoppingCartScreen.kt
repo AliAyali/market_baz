@@ -109,7 +109,7 @@ fun ShoppingCartScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(230.dp)
+                .height(240.dp)
                 .clip(RoundedCornerShape(topEnd = 30.dp, topStart = 30.dp))
                 .background(White)
         ) {
@@ -133,7 +133,7 @@ fun ShoppingCartScreen(
                         )
                         .padding(all = 12.dp),
                     textAlign = TextAlign.End,
-                    color = Color(0xFF32343E)
+                    color = Color(0xFF32343E),
                 )
                 Spacer(Modifier.height(12.dp))
                 Row(
@@ -151,10 +151,6 @@ fun ShoppingCartScreen(
                 Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        navController.navigate(NavigationScreen.Home.route) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
