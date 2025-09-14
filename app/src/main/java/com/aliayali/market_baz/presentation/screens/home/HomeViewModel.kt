@@ -36,6 +36,8 @@ class HomeViewModel @Inject constructor(
     private var _category = mutableIntStateOf(0)
     private val _filteredProducts = mutableStateOf<List<ProductEntity>>(listOf())
     val filteredProducts: State<List<ProductEntity>> = _filteredProducts
+    private val _searchResults = mutableStateOf<List<ProductEntity?>>(emptyList())
+    val searchResults: State<List<ProductEntity?>> = _searchResults
 
     fun getUserByPhone(phone: String) {
         viewModelScope.launch {
@@ -76,6 +78,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             productRepository.getProductsByCategorySortedByStar(categoryId).collect { products ->
                 _filteredProducts.value = products
+            }
+        }
+    }
+
+    fun searchProducts(query: String) {
+        viewModelScope.launch {
+            if (query.isBlank()) {
+                _searchResults.value = emptyList()
+            } else {
+                _searchResults.value = product.value.filter { product ->
+                    product?.name?.contains(query, ignoreCase = true) == true
+                }
             }
         }
     }
