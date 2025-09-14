@@ -1,5 +1,6 @@
 package com.aliayali.market_baz.presentation.screens.product
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
@@ -65,6 +67,7 @@ import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.White
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun ProductScreen(
     navController: NavController,
@@ -97,9 +100,10 @@ fun ProductScreen(
     val totalPrice = unitPrice * quantity
     val discountedTotal = calculateDiscountedPrice(totalPrice, clampedDiscount)
     var alertDialog by remember { mutableStateOf(false) }
-
+    var alertDialogStar by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
     val comments by productViewModel.comments.collectAsState(initial = emptyList())
+    var rating by remember { mutableIntStateOf(0) }
 
     LazyColumn(
         modifier = Modifier
@@ -248,7 +252,23 @@ fun ProductScreen(
             ) {
                 Icon(Icons.Outlined.Star, null, tint = BrightOrange)
                 Spacer(Modifier.width(5.dp))
-                Text(text = product?.star.toString())
+                Text(
+                    text = product?.star?.let { String.format("%.1f", it) } ?: "0.0"
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = "امتیاز بده",
+                    modifier = Modifier
+                        .background(
+                            BrightOrange, RoundedCornerShape(15.dp)
+                        )
+                        .padding(3.dp)
+                        .clickable {
+                            alertDialogStar = true
+                        },
+                    color = White
+                )
+
                 Text(
                     text = ":امتیاز",
                     modifier = Modifier.fillMaxWidth(),
@@ -398,6 +418,59 @@ fun ProductScreen(
                     tint = MidnightBlue,
                     modifier = Modifier.size(20.dp)
                 )
+            },
+            shape = RoundedCornerShape(10.dp)
+        )
+
+    if (alertDialogStar)
+        AlertDialog(
+            onDismissRequest = { alertDialogStar = false },
+            confirmButton = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    TextButton(
+                        onClick = {
+                            productViewModel.addRating(
+                                product, rating
+                            )
+                            alertDialogStar = false
+                        }
+                    ) {
+                        Text(text = "تایید")
+                    }
+                    TextButton(onClick = { alertDialogStar = false }) {
+                        Text(text = "لغو")
+                    }
+                }
+            },
+            title = {
+                Text(
+                    text = "امتیاز خودتو انتخاب کن",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
+            text = {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    for (i in 1..5) {
+                        Icon(
+                            imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Star $i",
+                            tint = if (i <= rating) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable { rating = i }
+                        )
+                        if (i < 5) Spacer(Modifier.width(4.dp))
+                    }
+                }
             },
             shape = RoundedCornerShape(10.dp)
         )

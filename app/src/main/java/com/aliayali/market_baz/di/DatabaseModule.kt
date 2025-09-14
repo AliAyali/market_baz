@@ -10,6 +10,7 @@ import com.aliayali.market_baz.data.local.database.dao.AddressDao
 import com.aliayali.market_baz.data.local.database.dao.CommentDao
 import com.aliayali.market_baz.data.local.database.dao.FavoriteDao
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
+import com.aliayali.market_baz.data.local.database.dao.RatingDao
 import com.aliayali.market_baz.data.local.database.dao.ShoppingCardDao
 import com.aliayali.market_baz.data.local.database.dao.UserDao
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
@@ -90,6 +91,11 @@ object DatabaseModule {
     @Provides
     fun provideCommentDao(database: MyDataBase): CommentDao {
         return database.commentDao()
+    }
+
+    @Provides
+    fun provideRatingDao(database: MyDataBase): RatingDao {
+        return database.ratingDao()
     }
 
 }

@@ -7,15 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.data.local.database.entity.RatingEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.CommentRepository
 import com.aliayali.market_baz.domain.repository.FavoriteRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
+import com.aliayali.market_baz.domain.repository.RatingRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +33,7 @@ class ProductViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
     private val userPreferences: UserPreferences,
     private val userRepository: UserRepository,
+    private val ratingRepository: RatingRepository
 ) : ViewModel() {
 
     private val _user = mutableStateOf<UserEntity?>(null)
@@ -147,5 +151,33 @@ class ProductViewModel @Inject constructor(
             loadComments(comment.productId)
         }
     }
+
+    fun addRating(product: ProductEntity?, newRating: Int) {
+        if (product == null || _user.value == null) return
+
+        val userPhone = _user.value!!.phone
+        viewModelScope.launch(Dispatchers.IO) {
+            val existingRating = ratingRepository.getRatingByUserAndProduct(userPhone, product.id)
+
+            if (existingRating == null) {
+                val oldStar = product.star
+                val oldComments = product.numberOfComments
+
+                val newNumberOfComments = oldComments + 1
+                val newStar = ((oldStar * oldComments) + newRating) / newNumberOfComments
+
+                val updatedProduct = product.copy(
+                    star = newStar,
+                    numberOfComments = newNumberOfComments
+                )
+                productRepository.updateProduct(updatedProduct)
+                ratingRepository.insertRating(
+                    RatingEntity(productId = product.id, userPhone = userPhone, rating = newRating)
+                )
+            }
+            getProductById(product.id)
+        }
+    }
+
 
 }
