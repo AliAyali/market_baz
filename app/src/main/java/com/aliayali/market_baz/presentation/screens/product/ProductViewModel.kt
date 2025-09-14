@@ -4,13 +4,21 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
+import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.domain.repository.CommentRepository
 import com.aliayali.market_baz.domain.repository.FavoriteRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
+import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,13 +27,46 @@ class ProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val shoppingCardRepository: ShoppingCardRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val commentRepository: CommentRepository,
+    private val userPreferences: UserPreferences,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
+
+    private val _user = mutableStateOf<UserEntity?>(null)
+    val user: State<UserEntity?> = _user
+
+    private val _comments = MutableStateFlow<List<CommentEntity>>(emptyList())
+    val comments: StateFlow<List<CommentEntity>> = _comments.asStateFlow()
+
+    private var _phone = mutableStateOf("")
 
     private val _product = mutableStateOf<ProductEntity?>(null)
     val product: State<ProductEntity?> = _product
 
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> = _isFavorite
+
+    init {
+        viewModelScope.launch {
+            userPreferences.phoneNumber.collect { phoneNumber ->
+                phoneNumber?.let {
+                    _phone.value = it
+                    getUserByPhone(it)
+                }
+            }
+        }
+    }
+
+    fun getUserByPhone(phone: String) {
+        viewModelScope.launch {
+            val result = userRepository.getUserByPhone(phone)
+            if (result != null) {
+                _user.value = result
+            } else {
+                _user.value = null
+            }
+        }
+    }
 
     fun getProductById(id: Int?) {
         viewModelScope.launch {
@@ -84,6 +125,27 @@ class ProductViewModel @Inject constructor(
             price = this.price,
             discount = this.discount
         )
+    }
+
+    fun insertComment(comment: CommentEntity) {
+        viewModelScope.launch {
+            commentRepository.insertComment(comment)
+        }
+    }
+
+    fun loadComments(productId: Int) {
+        viewModelScope.launch {
+            commentRepository.getCommentsByProductId(productId).collect { list ->
+                _comments.value = list
+            }
+        }
+    }
+
+    fun deleteComment(comment: CommentEntity) {
+        viewModelScope.launch {
+            commentRepository.deleteComment(comment)
+            loadComments(comment.productId)
+        }
     }
 
 }

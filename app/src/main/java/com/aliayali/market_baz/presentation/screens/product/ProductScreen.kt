@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +54,7 @@ import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
+import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.CommentItem
 import com.aliayali.market_baz.presentation.ui.LineBox
@@ -70,6 +73,7 @@ fun ProductScreen(
 ) {
     val product by productViewModel.product
     val favorite by productViewModel.isFavorite
+    val user = productViewModel.user.value
 
     LaunchedEffect(productId) {
         productViewModel.getProductById(productId)
@@ -77,6 +81,12 @@ fun ProductScreen(
     LaunchedEffect(product) {
         product?.let {
             productViewModel.checkIfFavorite(it.id)
+        }
+    }
+    LaunchedEffect(productId) {
+        productId?.let {
+            productViewModel.getProductById(it)
+            productViewModel.loadComments(it)
         }
     }
 
@@ -88,7 +98,8 @@ fun ProductScreen(
     val discountedTotal = calculateDiscountedPrice(totalPrice, clampedDiscount)
     var alertDialog by remember { mutableStateOf(false) }
 
-    var comment by remember { mutableStateOf("") }
+    var commentText by remember { mutableStateOf("") }
+    val comments by productViewModel.comments.collectAsState(initial = emptyList())
 
     LazyColumn(
         modifier = Modifier
@@ -148,7 +159,6 @@ fun ProductScreen(
                 }
             }
         }
-
 
         item {
             product?.let {
@@ -289,8 +299,8 @@ fun ProductScreen(
 
         item {
             OutlinedTextField(
-                value = comment,
-                onValueChange = { comment = it },
+                value = commentText,
+                onValueChange = { commentText = it },
                 label = {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -307,7 +317,19 @@ fun ProductScreen(
             )
             Spacer(Modifier.height(5.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    productViewModel.insertComment(
+                        CommentEntity(
+                            id = 0,
+                            productId = productId ?: 0,
+                            username = user?.name ?: "",
+                            userPhone = user?.phone ?: "",
+                            detail = commentText
+                        )
+                    )
+                    commentText = ""
+                },
+                enabled = !commentText.isBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),
@@ -322,8 +344,10 @@ fun ProductScreen(
             }
         }
 
-        items(10) {
-            CommentItem()
+        items(comments) { comment ->
+            CommentItem(comment, user?.phone ?: "", user?.isAdmin ?: false) {
+                productViewModel.deleteComment(comment)
+            }
         }
     }
 
@@ -377,4 +401,5 @@ fun ProductScreen(
             },
             shape = RoundedCornerShape(10.dp)
         )
+
 }
