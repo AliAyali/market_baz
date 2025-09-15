@@ -33,7 +33,7 @@ class ProductViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
     private val userPreferences: UserPreferences,
     private val userRepository: UserRepository,
-    private val ratingRepository: RatingRepository
+    private val ratingRepository: RatingRepository,
 ) : ViewModel() {
 
     private val _user = mutableStateOf<UserEntity?>(null)
@@ -81,7 +81,7 @@ class ProductViewModel @Inject constructor(
     fun insertShoppingCard(product: ProductEntity?, price: Int, number: Int) {
         viewModelScope.launch {
             product?.let { p ->
-                val existingItem = shoppingCardRepository.getItemByProductId(p.id)
+                val existingItem = shoppingCardRepository.getItemByProductId(p.id, _phone.value)
                 if (existingItem != null) {
                     val newNumber = existingItem.number + number
                     val finalNumber = if (newNumber > p.inventory) p.inventory else newNumber
@@ -94,7 +94,8 @@ class ProductViewModel @Inject constructor(
                             imageUrl = p.imageUrl,
                             name = p.name,
                             price = price,
-                            number = finalNumber
+                            number = finalNumber,
+                            userPhone = _phone.value
                         )
                     )
                 }
@@ -104,30 +105,31 @@ class ProductViewModel @Inject constructor(
 
     fun checkIfFavorite(productId: Int) {
         viewModelScope.launch {
-            _isFavorite.value = favoriteRepository.isFavorite(productId)
+            _isFavorite.value = favoriteRepository.isFavorite(productId, _phone.value)
         }
     }
 
     fun toggleFavorite(product: ProductEntity?) {
         if (product == null) return
         viewModelScope.launch {
-            val isFav = favoriteRepository.isFavorite(product.id)
+            val isFav = favoriteRepository.isFavorite(product.id, _phone.value)
             if (isFav) {
-                favoriteRepository.deleteFavoriteByProductId(product.id)
+                favoriteRepository.deleteFavoriteByProductId(product.id, _phone.value)
             } else {
-                favoriteRepository.insertFavorite(product.toFavoriteEntity())
+                favoriteRepository.insertFavorite(product.toFavoriteEntity(_phone.value))
             }
             _isFavorite.value = !isFav
         }
     }
 
-    fun ProductEntity.toFavoriteEntity(): FavoriteEntity {
+    fun ProductEntity.toFavoriteEntity(userPhone: String): FavoriteEntity {
         return FavoriteEntity(
             productId = this.id,
             title = this.name,
             imageUrl = this.imageUrl,
             price = this.price,
-            discount = this.discount
+            discount = this.discount,
+            userPhone = userPhone
         )
     }
 

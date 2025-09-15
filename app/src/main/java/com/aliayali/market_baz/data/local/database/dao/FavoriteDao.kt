@@ -16,12 +16,12 @@ interface FavoriteDao {
     @Delete
     suspend fun deleteFavorite(favorite: FavoriteEntity)
 
-    @Query("DELETE FROM favorites_table WHERE productId = :id")
-    suspend fun deleteFavoriteByProductId(id: Int)
+    @Query("DELETE FROM favorites_table WHERE productId = :id AND userPhone = :userPhone")
+    suspend fun deleteFavoriteByProductId(id: Int, userPhone: String)
 
-    @Query("SELECT * FROM favorites_table")
-    fun getAllFavorites(): Flow<List<FavoriteEntity>>
+    @Query("SELECT * FROM favorites_table WHERE userPhone = :userPhone")
+    fun getAllFavorites(userPhone: String): Flow<List<FavoriteEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM favorites_table WHERE productId = :id)")
-    suspend fun isFavorite(id: Int): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites_table WHERE productId = :id AND userPhone = :userPhone)")
+    suspend fun isFavorite(id: Int, userPhone: String): Boolean
 }

@@ -7,6 +7,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase.Companion.SHOPPING
 @Entity(tableName = SHOPPING_CARD_TABLE)
 data class ShoppingCardEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userPhone: String,
     val productId: Int,
     val imageUrl: Int,
     val name: String,

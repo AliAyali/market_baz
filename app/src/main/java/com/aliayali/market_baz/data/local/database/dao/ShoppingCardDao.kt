@@ -21,10 +21,9 @@ interface ShoppingCardDao {
     @Delete
     suspend fun deleteItem(item: ShoppingCardEntity)
 
-    @Query("SELECT * FROM shopping_card_table")
-    fun getAllItems(): Flow<List<ShoppingCardEntity>>
+    @Query("SELECT * FROM shopping_card_table WHERE userPhone = :userPhone")
+    fun getAllItems(userPhone: String): Flow<List<ShoppingCardEntity>>
 
-    @Query("SELECT * FROM shopping_card_table WHERE productId = :productId LIMIT 1")
-    suspend fun getItemByProductId(productId: Int): ShoppingCardEntity?
-
+    @Query("SELECT * FROM shopping_card_table WHERE productId = :productId AND userPhone = :userPhone LIMIT 1")
+    suspend fun getItemByProductId(productId: Int, userPhone: String): ShoppingCardEntity?
 }

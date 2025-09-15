@@ -8,5 +8,5 @@ interface AddressRepository {
     suspend fun updateAddress(address: AddressEntity)
     suspend fun deleteAddress(address: AddressEntity)
     suspend fun getAddressById(addressId: Int): AddressEntity?
-    fun getAllAddresses(): Flow<List<AddressEntity>>
+    fun getAllAddresses(userPhone: String): Flow<List<AddressEntity>>
 }

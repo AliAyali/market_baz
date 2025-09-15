@@ -40,9 +40,13 @@ fun AddNewAddressScreen(
     addressId: Int,
     addNewAddressViewModel: AddNewAddressViewModel = hiltViewModel(),
 ) {
-    addNewAddressViewModel.getAddressById(addressId)
-    val address = addNewAddressViewModel.address.value
+    LaunchedEffect(addressId) {
+        if (addressId != 0) {
+            addNewAddressViewModel.getAddressById(addressId)
+        }
+    }
 
+    val address = addNewAddressViewModel.address.value
     var nameAddress by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("مشهد") }
     var street by remember { mutableStateOf("") }
@@ -138,11 +142,29 @@ fun AddNewAddressScreen(
                     errorMessage = ""
                     if (addressId == 0)
                         addNewAddressViewModel.insertAddress(
-                            AddressEntity(0, nameAddress, city, street, milan, plate, floor)
+                            AddressEntity(
+                                0,
+                                "",
+                                nameAddress,
+                                city,
+                                street,
+                                milan,
+                                plate,
+                                floor
+                            )
                         )
                     else
                         addNewAddressViewModel.updateAddress(
-                            AddressEntity(addressId, nameAddress, city, street, milan, plate, floor)
+                            AddressEntity(
+                                addressId,
+                                "",
+                                nameAddress,
+                                city,
+                                street,
+                                milan,
+                                plate,
+                                floor
+                            )
                         )
 
                     navController.navigate(NavigationScreen.Address.route) {

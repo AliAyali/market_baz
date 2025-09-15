@@ -1,6 +1,5 @@
 package com.aliayali.market_baz.presentation.screens.address
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,26 +24,27 @@ class AddressViewModel @Inject constructor(
 
     private val _addresses = MutableStateFlow<List<AddressEntity>>(emptyList())
     val addresses: StateFlow<List<AddressEntity>> = _addresses.asStateFlow()
-    private val _user = mutableStateOf<UserEntity?>(null)
-    val user: State<UserEntity?> = _user
+    private val _user = MutableStateFlow<UserEntity?>(null)
+    val user: StateFlow<UserEntity?> = _user.asStateFlow()
     private var _phone = mutableStateOf("")
 
     init {
-        viewModelScope.launch {
-            addressRepository.getAllAddresses().collect { list ->
-                _addresses.value = list
-            }
-        }
-
         viewModelScope.launch {
             userPreferences.phoneNumber.collect { phoneNumber ->
                 phoneNumber?.let {
                     _phone.value = it
                     getUserByPhone(it)
+
+                    launch {
+                        addressRepository.getAllAddresses(it).collect { list ->
+                            _addresses.value = list
+                        }
+                    }
                 }
             }
         }
     }
+
 
     fun deleteAddress(address: AddressEntity) {
         viewModelScope.launch {
