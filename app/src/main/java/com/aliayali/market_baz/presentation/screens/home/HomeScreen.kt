@@ -46,7 +46,6 @@ import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.presentation.ui.SearchTextField
 import com.aliayali.market_baz.ui.theme.BrightOrange
-import com.aliayali.market_baz.ui.theme.HoneyGlow
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.SlateGray
@@ -202,6 +201,7 @@ fun HomeScreen(
 
             item {
                 LazyRow(
+                    Modifier.fillMaxWidth(),
                     reverseLayout = true
                 ) {
                     items(allProduct) {
