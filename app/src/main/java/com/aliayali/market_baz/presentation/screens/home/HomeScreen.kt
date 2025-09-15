@@ -46,6 +46,7 @@ import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.presentation.ui.SearchTextField
 import com.aliayali.market_baz.ui.theme.BrightOrange
+import com.aliayali.market_baz.ui.theme.HoneyGlow
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.SlateGray
@@ -65,214 +66,237 @@ fun HomeScreen(
     val shoppingCardRepositorySize = homeViewModel.shoppingCardRepositorySize.value
     var searchQuery by remember { mutableStateOf("") }
 
-    LazyColumn(
-        Modifier
-            .fillMaxSize()
-            .background(White)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
-    ) {
-        item {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Box {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+
+            item {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box {
+                        Image(
+                            painterResource(R.drawable.shopping),
+                            null,
+                            Modifier
+                                .background(MidnightBlue, CircleShape)
+                                .padding(15.dp)
+                                .size(20.dp)
+                                .clickable {
+                                    navController.navigate(NavigationScreen.ShoppingCart.route) {
+                                        popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                        )
+                        if (shoppingCardRepositorySize > 0)
+                            Text(
+                                text = shoppingCardRepositorySize.toString(),
+                                color = White,
+                                modifier = Modifier
+                                    .background(
+                                        BrightOrange,
+                                        CircleShape
+                                    )
+                                    .padding(horizontal = 7.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                    }
+
+                    Column(
+                        modifier = Modifier.width(200.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            text = "تحویل به",
+                            color = BrightOrange,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = user?.address ?: "تنظیم نشده",
+                            color = SlateGray,
+                            fontSize = 18.sp,
+                            maxLines = 2,
+                            textAlign = TextAlign.End
+                        )
+                    }
+
+
                     Image(
-                        painterResource(R.drawable.shopping),
+                        painterResource(R.drawable.menu),
                         null,
                         Modifier
-                            .background(MidnightBlue, CircleShape)
+                            .background(IceMist, CircleShape)
                             .padding(15.dp)
                             .size(20.dp)
                             .clickable {
-                                navController.navigate(NavigationScreen.ShoppingCart.route) {
+                                navController.navigate(NavigationScreen.Profile.route) {
                                     popUpTo(NavigationScreen.Home.route) { inclusive = true }
                                     launchSingleTop = true
                                 }
                             }
                     )
-                    if (shoppingCardRepositorySize > 0)
-                        Text(
-                            text = shoppingCardRepositorySize.toString(),
-                            color = White,
-                            modifier = Modifier
-                                .background(
-                                    BrightOrange,
-                                    CircleShape
-                                )
-                                .padding(horizontal = 7.dp),
-                            fontWeight = FontWeight.Bold
-                        )
                 }
-
-                Column(
-                    modifier = Modifier.width(200.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = "تحویل به",
-                        color = BrightOrange,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        text = user?.address ?: "تنظیم نشده",
-                        color = SlateGray,
-                        fontSize = 18.sp,
-                        maxLines = 2,
-                        textAlign = TextAlign.End
-                    )
-                }
-
-
-                Image(
-                    painterResource(R.drawable.menu),
-                    null,
-                    Modifier
-                        .background(IceMist, CircleShape)
-                        .padding(15.dp)
-                        .size(20.dp)
-                        .clickable {
-                            navController.navigate(NavigationScreen.Profile.route) {
-                                popUpTo(NavigationScreen.Home.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                )
+                Spacer(Modifier.height(30.dp))
             }
-            Spacer(Modifier.height(30.dp))
-        }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = "سلام ${user?.name ?: "کاربر"}، روزت بخیر!",
-                    fontSize = 18.sp,
+            item {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    style = TextStyle(
-                        textDirection = TextDirection.Rtl,
-                    )
-                )
-            }
-            Spacer(Modifier.height(30.dp))
-        }
-
-        item {
-            SearchTextField(
-                query = searchQuery,
-                onQueryChange = {
-                    searchQuery = it
-                    homeViewModel.searchProducts(it)
-                }
-            )
-            Spacer(Modifier.height(30.dp))
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        null
-                    )
                     Text(
-                        text = "دیدن همه",
-                        fontSize = 18.sp
+                        text = "سلام ${user?.name ?: "کاربر"}، روزت بخیر!",
+                        fontSize = 18.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = TextStyle(
+                            textDirection = TextDirection.Rtl,
+                        )
                     )
                 }
-                Text(
-                    text = "محبوب",
-                    fontSize = 18.sp
+                Spacer(Modifier.height(30.dp))
+            }
+
+            item {
+                SearchTextField(
+                    query = searchQuery,
+                    onQueryChange = {
+                        searchQuery = it
+                        homeViewModel.searchProducts(it)
+                    }
                 )
+                Spacer(Modifier.height(30.dp))
             }
-            Spacer(Modifier.height(10.dp))
-        }
 
-        item {
-            LazyRow(
-                reverseLayout = true
-            ) {
-                items(allProduct) {
-                    if ((it?.discount ?: 0) > 0)
-                        ProductItemSmallFavorite(it) {
-                            navController.navigate(
-                                NavigationScreen.Product.createRoute(it?.id ?: 0)
-                            )
-                        }
-                }
-            }
-            Spacer(Modifier.height(30.dp))
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            item {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        null
-                    )
-                    Text(
-                        text = "دیدن همه",
-                        fontSize = 18.sp
-                    )
-                }
-                Text(
-                    text = "همه دسته ها",
-                    fontSize = 18.sp
-                )
-            }
-            Spacer(Modifier.height(10.dp))
-        }
-
-        item {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                reverseLayout = true,
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                items(categories) { category ->
-                    CategoryItem(
-                        data = category,
-                        selected = category == selectedCategory
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        homeViewModel.getCategory(category.id)
-                        selectedCategory = category
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            null
+                        )
+                        Text(
+                            text = "دیدن همه",
+                            fontSize = 18.sp
+                        )
+                    }
+                    Text(
+                        text = "محبوب",
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
+            }
+
+            item {
+                LazyRow(
+                    reverseLayout = true
+                ) {
+                    items(allProduct) {
+                        if (it.discount > 0)
+                            ProductItemSmallFavorite(it) {
+                                navController.navigate(
+                                    NavigationScreen.Product.createRoute(it.id)
+                                )
+                            }
                     }
                 }
+                Spacer(Modifier.height(30.dp))
             }
-            Spacer(Modifier.height(10.dp))
-        }
 
-        items(
-            when {
-                searchQuery.isNotEmpty() -> homeViewModel.searchResults.value
-                selectedCategory.id == 0 -> allProduct
-                else -> filteredProducts
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            null
+                        )
+                        Text(
+                            text = "دیدن همه",
+                            fontSize = 18.sp
+                        )
+                    }
+                    Text(
+                        text = "همه دسته ها",
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
             }
-        ) { product ->
-            ProductItemBig(product) {
-                navController.navigate(
-                    NavigationScreen.Product.createRoute(product?.id ?: 0)
+
+            item {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    reverseLayout = true,
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    items(categories) { category ->
+                        CategoryItem(
+                            data = category,
+                            selected = category == selectedCategory
+                        ) {
+                            homeViewModel.getCategory(category.id)
+                            selectedCategory = category
+                        }
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+            }
+
+            items(
+                when {
+                    searchQuery.isNotEmpty() -> homeViewModel.searchResults.value
+                    selectedCategory.id == 0 -> allProduct
+                    else -> filteredProducts
+                }
+            ) { product ->
+                ProductItemBig(product) {
+                    navController.navigate(
+                        NavigationScreen.Product.createRoute(product.id)
+                    )
+                }
+            }
+        }
+        if (user?.isAdmin ?: false)
+            androidx.compose.material3.FloatingActionButton(
+                onClick = {
+                    navController.navigate(NavigationScreen.Admin.route) {
+                        popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                containerColor = BrightOrange,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "ادمین",
+                    color = White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        }
     }
+
 }
