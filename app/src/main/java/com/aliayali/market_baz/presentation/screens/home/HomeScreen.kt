@@ -90,7 +90,7 @@ fun HomeScreen(
                                 .size(20.dp)
                                 .clickable {
                                     navController.navigate(NavigationScreen.ShoppingCart.route) {
-                                        popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
                                         launchSingleTop = true
                                     }
                                 }
@@ -137,7 +137,7 @@ fun HomeScreen(
                             .size(20.dp)
                             .clickable {
                                 navController.navigate(NavigationScreen.Profile.route) {
-                                    popUpTo(NavigationScreen.Home.route) { inclusive = true }
+                                    popUpTo(NavigationScreen.Home.route) { inclusive = false }
                                     launchSingleTop = true
                                 }
                             }

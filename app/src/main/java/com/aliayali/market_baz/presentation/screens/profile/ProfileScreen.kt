@@ -71,7 +71,7 @@ fun ProfileScreen(
                     .padding(9.dp)
                     .clickable {
                         navController.navigate(NavigationScreen.Home.route) {
-                            popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                            popUpTo(NavigationScreen.Home.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     }
@@ -117,7 +117,7 @@ fun ProfileScreen(
             Color(0xFF413DFB)
         ) {
             navController.navigate(NavigationScreen.Address.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
                 launchSingleTop = true
             }
         }
@@ -130,7 +130,7 @@ fun ProfileScreen(
             Color(0xFF369BFF)
         ) {
             navController.navigate(NavigationScreen.ShoppingCart.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
                 launchSingleTop = true
             }
         }
@@ -143,7 +143,7 @@ fun ProfileScreen(
             Color(0xFFB33DFB)
         ) {
             navController.navigate(NavigationScreen.Favorite.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
                 launchSingleTop = true
             }
         }
