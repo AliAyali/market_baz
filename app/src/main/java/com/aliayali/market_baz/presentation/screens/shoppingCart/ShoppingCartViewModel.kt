@@ -12,6 +12,7 @@ import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,15 +41,20 @@ class ShoppingCartViewModel @Inject constructor(
                 phoneNumber?.let {
                     _phone.value = it
                     getUserByPhone(it)
+                    collectShoppingCart(it)
                 }
             }
         }
+    }
+
+    private fun collectShoppingCart(phone: String) {
         viewModelScope.launch {
-            shoppingCardRepository.getAllItems().collect { items ->
+            shoppingCardRepository.getAllItems(phone).collect { items ->
                 _shoppingCardList.value = items
             }
         }
     }
+
 
     fun getUserByPhone(phone: String) {
         viewModelScope.launch {
@@ -62,21 +68,20 @@ class ShoppingCartViewModel @Inject constructor(
     }
 
     fun increaseItem(item: ShoppingCardEntity) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val productFromDb = productRepository.getProductById(item.productId)
-            if (productFromDb != null) {
-                if (item.number < productFromDb.inventory) {
-                    shoppingCardRepository.updateItem(item.copy(number = item.number + 1))
-                }
+            if (productFromDb != null && item.number < productFromDb.inventory) {
+                shoppingCardRepository.updateItem(item.copy(number = item.number + 1))
             }
         }
     }
 
-
     fun decreaseItem(item: ShoppingCardEntity) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (item.number > 1) {
                 shoppingCardRepository.updateItem(item.copy(number = item.number - 1))
+            } else {
+                shoppingCardRepository.deleteItem(item)
             }
         }
     }
@@ -86,10 +91,6 @@ class ShoppingCartViewModel @Inject constructor(
         viewModelScope.launch {
             shoppingCardRepository.deleteItem(item)
         }
-    }
-
-    suspend fun getProductById(productId: Int): ProductEntity? {
-        return productRepository.getProductById(productId)
     }
 
 }

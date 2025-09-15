@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.aliayali.market_baz.data.local.database.entity.AddressEntity
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,7 +24,7 @@ interface AddressDao {
     @Query("SELECT * FROM address_table WHERE id = :addressId LIMIT 1")
     suspend fun getAddressById(addressId: Int): AddressEntity?
 
-    @Query("SELECT * FROM address_table")
-    fun getAllAddresses(): Flow<List<AddressEntity>>
 
+    @Query("SELECT * FROM address_table WHERE userPhone = :userPhone")
+    fun getAllAddresses(userPhone: String): Flow<List<AddressEntity>>
 }

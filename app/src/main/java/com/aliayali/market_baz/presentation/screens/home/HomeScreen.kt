@@ -63,6 +63,7 @@ fun HomeScreen(
     val filteredProducts = homeViewModel.filteredProducts.value
     val allProduct = homeViewModel.product.value
     val shoppingCardRepositorySize = homeViewModel.shoppingCardRepositorySize.value
+    var searchQuery by remember { mutableStateOf("") }
 
     LazyColumn(
         Modifier
@@ -162,8 +163,12 @@ fun HomeScreen(
 
         item {
             SearchTextField(
-                ""
-            ) {}
+                query = searchQuery,
+                onQueryChange = {
+                    searchQuery = it
+                    homeViewModel.searchProducts(it)
+                }
+            )
             Spacer(Modifier.height(30.dp))
         }
 
@@ -257,7 +262,11 @@ fun HomeScreen(
         }
 
         items(
-            if (selectedCategory.id == 0) allProduct else filteredProducts
+            when {
+                searchQuery.isNotEmpty() -> homeViewModel.searchResults.value
+                selectedCategory.id == 0 -> allProduct
+                else -> filteredProducts
+            }
         ) { product ->
             ProductItemBig(product) {
                 navController.navigate(

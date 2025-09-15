@@ -7,15 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.data.local.database.entity.RatingEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.CommentRepository
 import com.aliayali.market_baz.domain.repository.FavoriteRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
+import com.aliayali.market_baz.domain.repository.RatingRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +33,7 @@ class ProductViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
     private val userPreferences: UserPreferences,
     private val userRepository: UserRepository,
+    private val ratingRepository: RatingRepository,
 ) : ViewModel() {
 
     private val _user = mutableStateOf<UserEntity?>(null)
@@ -77,7 +81,7 @@ class ProductViewModel @Inject constructor(
     fun insertShoppingCard(product: ProductEntity?, price: Int, number: Int) {
         viewModelScope.launch {
             product?.let { p ->
-                val existingItem = shoppingCardRepository.getItemByProductId(p.id)
+                val existingItem = shoppingCardRepository.getItemByProductId(p.id, _phone.value)
                 if (existingItem != null) {
                     val newNumber = existingItem.number + number
                     val finalNumber = if (newNumber > p.inventory) p.inventory else newNumber
@@ -90,7 +94,8 @@ class ProductViewModel @Inject constructor(
                             imageUrl = p.imageUrl,
                             name = p.name,
                             price = price,
-                            number = finalNumber
+                            number = finalNumber,
+                            userPhone = _phone.value
                         )
                     )
                 }
@@ -100,30 +105,31 @@ class ProductViewModel @Inject constructor(
 
     fun checkIfFavorite(productId: Int) {
         viewModelScope.launch {
-            _isFavorite.value = favoriteRepository.isFavorite(productId)
+            _isFavorite.value = favoriteRepository.isFavorite(productId, _phone.value)
         }
     }
 
     fun toggleFavorite(product: ProductEntity?) {
         if (product == null) return
         viewModelScope.launch {
-            val isFav = favoriteRepository.isFavorite(product.id)
+            val isFav = favoriteRepository.isFavorite(product.id, _phone.value)
             if (isFav) {
-                favoriteRepository.deleteFavoriteByProductId(product.id)
+                favoriteRepository.deleteFavoriteByProductId(product.id, _phone.value)
             } else {
-                favoriteRepository.insertFavorite(product.toFavoriteEntity())
+                favoriteRepository.insertFavorite(product.toFavoriteEntity(_phone.value))
             }
             _isFavorite.value = !isFav
         }
     }
 
-    fun ProductEntity.toFavoriteEntity(): FavoriteEntity {
+    fun ProductEntity.toFavoriteEntity(userPhone: String): FavoriteEntity {
         return FavoriteEntity(
             productId = this.id,
             title = this.name,
             imageUrl = this.imageUrl,
             price = this.price,
-            discount = this.discount
+            discount = this.discount,
+            userPhone = userPhone
         )
     }
 
@@ -147,5 +153,33 @@ class ProductViewModel @Inject constructor(
             loadComments(comment.productId)
         }
     }
+
+    fun addRating(product: ProductEntity?, newRating: Int) {
+        if (product == null || _user.value == null) return
+
+        val userPhone = _user.value!!.phone
+        viewModelScope.launch(Dispatchers.IO) {
+            val existingRating = ratingRepository.getRatingByUserAndProduct(userPhone, product.id)
+
+            if (existingRating == null) {
+                val oldStar = product.star
+                val oldComments = product.numberOfComments
+
+                val newNumberOfComments = oldComments + 1
+                val newStar = ((oldStar * oldComments) + newRating) / newNumberOfComments
+
+                val updatedProduct = product.copy(
+                    star = newStar,
+                    numberOfComments = newNumberOfComments
+                )
+                productRepository.updateProduct(updatedProduct)
+                ratingRepository.insertRating(
+                    RatingEntity(productId = product.id, userPhone = userPhone, rating = newRating)
+                )
+            }
+            getProductById(product.id)
+        }
+    }
+
 
 }

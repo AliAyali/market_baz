@@ -29,13 +29,16 @@ class HomeViewModel @Inject constructor(
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
 
-    private val _product = mutableStateOf<List<ProductEntity?>>(listOf())
-    val product: State<List<ProductEntity?>> = _product
+    private val _product = mutableStateOf<List<ProductEntity>>(emptyList())
+    val product: State<List<ProductEntity>> = _product
 
     private var _phone = mutableStateOf("")
     private var _category = mutableIntStateOf(0)
     private val _filteredProducts = mutableStateOf<List<ProductEntity>>(listOf())
     val filteredProducts: State<List<ProductEntity>> = _filteredProducts
+    private val _searchResults = mutableStateOf<List<ProductEntity>>(emptyList())
+    val searchResults: State<List<ProductEntity>> = _searchResults
+
 
     fun getUserByPhone(phone: String) {
         viewModelScope.launch {
@@ -54,6 +57,7 @@ class HomeViewModel @Inject constructor(
                 phoneNumber?.let {
                     _phone.value = it
                     getUserByPhone(it)
+                    collectShoppingCart(it)
                 }
             }
         }
@@ -63,9 +67,11 @@ class HomeViewModel @Inject constructor(
                 _product.value = products
             }
         }
+    }
 
+    private fun collectShoppingCart(phone: String) {
         viewModelScope.launch {
-            shoppingCardRepository.getAllItems().collect { items ->
+            shoppingCardRepository.getAllItems(phone).collect { items ->
                 _shoppingCardRepositorySize.intValue = items.size
             }
         }
@@ -76,6 +82,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             productRepository.getProductsByCategorySortedByStar(categoryId).collect { products ->
                 _filteredProducts.value = products
+            }
+        }
+    }
+
+    fun searchProducts(query: String) {
+        viewModelScope.launch {
+            if (query.isBlank()) {
+                _searchResults.value = emptyList()
+            } else {
+                _searchResults.value = product.value.filter { product ->
+                    product.name.contains(query, ignoreCase = true)
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase.Companion.FAVORITE
 @Entity(tableName = FAVORITE_TABLE)
 data class FavoriteEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userPhone: String,
     val productId: Int,
     val title: String,
     val imageUrl: Int,
