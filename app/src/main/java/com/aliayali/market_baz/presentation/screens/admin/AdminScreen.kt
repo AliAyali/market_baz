@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.presentation.screens.admin.ordersSection.OrdersSection
 import com.aliayali.market_baz.presentation.screens.admin.productsSection.ProductsSection
@@ -24,9 +23,7 @@ import com.aliayali.market_baz.presentation.screens.admin.reportsSection.Reports
 import com.aliayali.market_baz.presentation.screens.admin.usersSection.UsersSection
 
 @Composable
-fun AdminScreen(
-    navController: NavController,
-) {
+fun AdminScreen() {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.Products) }
 
     Scaffold(

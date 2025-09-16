@@ -73,7 +73,7 @@ fun SetupNavigation(
         composable(
             route = NavigationScreen.Admin.route
         ) {
-            AdminScreen(navController)
+            AdminScreen()
         }
 
         composable(
