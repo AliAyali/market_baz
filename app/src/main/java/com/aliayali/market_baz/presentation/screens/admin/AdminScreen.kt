@@ -1,92 +1,92 @@
 package com.aliayali.market_baz.presentation.screens.admin
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.R
+import com.aliayali.market_baz.presentation.screens.admin.ordersSection.OrdersSection
+import com.aliayali.market_baz.presentation.screens.admin.productsSection.ProductsSection
+import com.aliayali.market_baz.presentation.screens.admin.reportsSection.ReportsSection
+import com.aliayali.market_baz.presentation.screens.admin.usersSection.UsersSection
 
 @Composable
-fun AdminScreen(
-    navController: NavController,
-    adminViewModel: AdminViewModel = hiltViewModel(),
-) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var discount by remember { mutableStateOf("") }
-    var categoryId by remember { mutableStateOf("") }
-    var inventory by remember { mutableStateOf("") }
+fun AdminScreen() {
+    var selectedTab by rememberSaveable { mutableStateOf(AdminTab.Products) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            placeholder = { Text("عنوان") }
-        )
-        TextField(
-            value = description,
-            onValueChange = { description = it },
-            placeholder = { Text("متن") }
-        )
-        TextField(
-            value = price,
-            onValueChange = { price = it },
-            placeholder = { Text("قیمت") }
-        )
-        TextField(
-            value = discount,
-            onValueChange = { discount = it },
-            placeholder = { Text("تخفیف") }
-        )
-        TextField(
-            value = categoryId,
-            onValueChange = { categoryId = it },
-            placeholder = { Text("دسته بندی") }
-        )
-        TextField(
-            value = inventory,
-            onValueChange = { inventory = it },
-            placeholder = { Text("موجودی") }
-        )
-
-        Button(
-            onClick = {
-                adminViewModel.insertProduct(
-                    name,
-                    description,
-                    price.toInt(),
-                    discount.toInt(),
-                    categoryId.toInt(),
-                    inventory.toInt()
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == AdminTab.Products,
+                    onClick = { selectedTab = AdminTab.Products },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.product_admin),
+                            contentDescription = "Products",
+                            Modifier.size(28.dp)
+                        )
+                    },
+                    label = { Text("محصولات") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == AdminTab.Orders,
+                    onClick = { selectedTab = AdminTab.Orders },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.order_admin),
+                            contentDescription = "Orders",
+                            Modifier.size(28.dp)
+                        )
+                    },
+                    label = { Text("سفارش‌ها") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == AdminTab.Users,
+                    onClick = { selectedTab = AdminTab.Users },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.user_admin),
+                            contentDescription = "Users",
+                            Modifier.size(28.dp)
+                        )
+                    },
+                    label = { Text("کاربران") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == AdminTab.Reports,
+                    onClick = { selectedTab = AdminTab.Reports },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.report_admin),
+                            contentDescription = "Reports",
+                            Modifier.size(28.dp)
+                        )
+                    },
+                    label = { Text("گزارشات") }
                 )
             }
-        ) {
-            Text("ذخیره")
         }
-        Button(
-            onClick = {
-                navController.navigate(NavigationScreen.Home.route)
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            when (selectedTab) {
+                AdminTab.Products -> ProductsSection()
+                AdminTab.Orders -> OrdersSection()
+                AdminTab.Users -> UsersSection()
+                AdminTab.Reports -> ReportsSection()
             }
-        ) {
-            Text("رفتن به خانه")
         }
     }
-
 }
