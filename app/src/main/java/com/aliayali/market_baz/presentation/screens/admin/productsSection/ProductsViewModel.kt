@@ -14,15 +14,27 @@ import javax.inject.Inject
 class ProductsViewModel @Inject constructor(
     productRepository: ProductRepository
 ) : ViewModel() {
-    private val _product = mutableStateOf<List<ProductEntity>>(emptyList())
-    val product: State<List<ProductEntity>> = _product
+
+    private val _allProducts = mutableStateOf<List<ProductEntity>>(emptyList())
+    val allProducts: State<List<ProductEntity>> = _allProducts
+
+    private val _displayedProducts = mutableStateOf<List<ProductEntity>>(emptyList())
+    val displayedProducts: State<List<ProductEntity>> = _displayedProducts
 
     init {
         viewModelScope.launch {
             productRepository.getAllProducts().collect { products ->
-                _product.value = products
+                _allProducts.value = products
+                _displayedProducts.value = products
             }
         }
     }
 
+    fun searchProducts(query: String) {
+        _displayedProducts.value = if (query.isBlank()) {
+            _allProducts.value
+        } else {
+            _allProducts.value.filter { it.name.contains(query, ignoreCase = true) }
+        }
+    }
 }

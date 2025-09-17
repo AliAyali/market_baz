@@ -39,14 +39,15 @@ fun ProductsSection(
     navController: NavController,
     productsViewModel: ProductsViewModel = hiltViewModel(),
 ) {
-    val allProduct = productsViewModel.product.value
     var searchQuery by remember { mutableStateOf("") }
+    val products = productsViewModel.displayedProducts.value
 
     Column(
         Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -62,7 +63,7 @@ fun ProductsSection(
             ) {
                 Icon(
                     Icons.Default.Home,
-                    "Home",
+                    contentDescription = "Home",
                     Modifier.size(28.dp)
                 )
             }
@@ -74,10 +75,12 @@ fun ProductsSection(
 
         Spacer(Modifier.height(10.dp))
 
+
         SearchTextField(
             query = searchQuery,
             onQueryChange = {
                 searchQuery = it
+                productsViewModel.searchProducts(it)
             }
         )
 
@@ -97,16 +100,16 @@ fun ProductsSection(
         Spacer(Modifier.height(10.dp))
 
         LazyColumn {
-            items(allProduct) {
+            items(products) { product ->
                 ProductsItem(
-                    it,
+                    product = product,
                     onClick = {
                         navController.navigate(
-                            NavigationScreen.Product.createRoute(it.id)
+                            NavigationScreen.Product.createRoute(product.id)
                         )
                     },
                     onEdit = {
-
+                        
                     }
                 )
             }
