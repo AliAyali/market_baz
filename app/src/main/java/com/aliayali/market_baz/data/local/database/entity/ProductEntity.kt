@@ -7,7 +7,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase.Companion.PRODUCT_
 @Entity(tableName = PRODUCT_TABLE)
 data class ProductEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val imageUrl: Int,
+    val imageUrl: String,
     val name: String,
     val description: String?,
     val price: Int,

@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
@@ -167,7 +168,7 @@ fun ProductScreen(
         item {
             product?.let {
                 Image(
-                    painterResource(product?.imageUrl ?: 0),
+                    rememberAsyncImagePainter(model = product!!.imageUrl),
                     null,
                     modifier = Modifier
                         .fillMaxWidth()

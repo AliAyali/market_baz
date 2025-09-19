@@ -31,10 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
@@ -152,7 +152,7 @@ fun ProductsItem(
                 }
             }
             Image(
-                painter = painterResource(id = product.imageUrl),
+                painter = rememberAsyncImagePainter(model = product.imageUrl),
                 contentDescription = product.name,
                 modifier = Modifier
                     .size(64.dp)

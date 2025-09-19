@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
@@ -109,7 +110,7 @@ fun ShoppingCardItem(
         }
 
         Image(
-            painterResource(shoppingCard.imageUrl),
+            rememberAsyncImagePainter(shoppingCard.imageUrl),
             null,
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))

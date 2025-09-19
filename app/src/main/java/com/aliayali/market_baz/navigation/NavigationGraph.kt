@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.aliayali.market_baz.presentation.screens.addNewAddress.AddNewAddressScreen
 import com.aliayali.market_baz.presentation.screens.address.AddressScreen
 import com.aliayali.market_baz.presentation.screens.admin.AdminScreen
+import com.aliayali.market_baz.presentation.screens.admin.addProduct.AddProductScreen
 import com.aliayali.market_baz.presentation.screens.favorite.FavoriteScreen
 import com.aliayali.market_baz.presentation.screens.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screens.home.HomeScreen
@@ -125,7 +126,11 @@ fun SetupNavigation(
                 addressId = addressId
             )
         }
-
+        composable(
+            route = NavigationScreen.AddProduct.route
+        ) {
+            AddProductScreen(navController)
+        }
     }
 
 }

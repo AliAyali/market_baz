@@ -87,7 +87,12 @@ fun ProductsSection(
         Spacer(Modifier.height(10.dp))
 
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(NavigationScreen.AddProduct.route) {
+                    popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
+                    launchSingleTop = true
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
         ) {
@@ -109,7 +114,7 @@ fun ProductsSection(
                         )
                     },
                     onEdit = {
-                        
+
                     }
                 )
             }
