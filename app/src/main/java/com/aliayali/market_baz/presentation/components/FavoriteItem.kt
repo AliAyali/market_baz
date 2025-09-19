@@ -18,12 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
@@ -55,7 +55,7 @@ fun FavoriteItem(
         ) {
 
             Image(
-                painterResource(favorite!!.imageUrl),
+                rememberAsyncImagePainter(favorite!!.imageUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .size(130.dp)

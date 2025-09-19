@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.ProfileItem
@@ -86,7 +87,7 @@ fun ProfileScreen(
 
         user?.let {
             Image(
-                painterResource(user.image),
+                rememberAsyncImagePainter(model = user.image),
                 null,
                 modifier = Modifier
                     .fillMaxWidth()

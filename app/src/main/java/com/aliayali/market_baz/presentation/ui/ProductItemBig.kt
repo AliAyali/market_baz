@@ -21,12 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
@@ -51,7 +51,7 @@ fun ProductItemBig(
     ) {
 
         Image(
-            painterResource(data?.imageUrl ?: 0),
+            rememberAsyncImagePainter(data?.imageUrl ?: 0),
             null,
             Modifier
                 .fillMaxWidth()
