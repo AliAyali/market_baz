@@ -21,6 +21,7 @@ import com.aliayali.market_baz.presentation.screens.profile.ProfileScreen
 import com.aliayali.market_baz.presentation.screens.shoppingCart.ShoppingCartScreen
 import com.aliayali.market_baz.presentation.screens.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screens.splash.SplashScreen
+import com.aliayali.market_baz.presentation.screens.user.UserScreen
 import com.aliayali.market_baz.presentation.screens.verification.VerificationScreen
 
 @Composable
@@ -133,6 +134,15 @@ fun SetupNavigation(
             AddProductScreen(
                 navController,
                 productId
+            )
+        }
+        composable(
+            route = NavigationScreen.User.route + "/{userPhone}"
+        ) { backStackEntry ->
+            val userPhone = backStackEntry.arguments?.getString("userPhone")
+            UserScreen(
+                navController,
+                userPhone ?: ""
             )
         }
     }

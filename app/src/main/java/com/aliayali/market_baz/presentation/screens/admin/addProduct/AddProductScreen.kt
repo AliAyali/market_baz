@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.model.ProductCategory
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.screens.admin.components.GalleryImagePicker
+import com.aliayali.market_baz.presentation.screens.admin.components.GalleryImagePickerProduct
 import com.aliayali.market_baz.presentation.screens.admin.components.saveImageToInternalStorage
 import com.aliayali.market_baz.ui.theme.IceMist
 import java.io.File
@@ -123,7 +123,7 @@ fun AddProductScreen(
             )
         }
 
-        GalleryImagePicker(
+        GalleryImagePickerProduct(
             selectedImageUri = selectedImageUri,
             onImageSelected = { selectedImageUri = it }
         )

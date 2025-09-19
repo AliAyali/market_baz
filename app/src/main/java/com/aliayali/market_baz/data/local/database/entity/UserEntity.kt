@@ -2,13 +2,12 @@ package com.aliayali.market_baz.data.local.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.MyDataBase
 
 @Entity(tableName = MyDataBase.USER_TABLE)
 data class UserEntity(
     @PrimaryKey val phone: String,
-    val image: Int = R.drawable.user,
+    val image: String = "",
     val name: String?,
     val password: String,
     val address: String = "آدرس تنظیم نشده",

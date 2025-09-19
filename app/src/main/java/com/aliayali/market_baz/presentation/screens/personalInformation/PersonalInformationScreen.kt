@@ -1,11 +1,10 @@
 package com.aliayali.market_baz.presentation.screens.personalInformation
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,15 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -40,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -49,40 +44,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.components.ItemImageUser
+import com.aliayali.market_baz.presentation.screens.admin.components.GalleryImagePickerUser
+import com.aliayali.market_baz.presentation.screens.admin.components.saveImageToInternalStorage
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.IceMist
 import com.aliayali.market_baz.ui.theme.SlateGray
 import com.aliayali.market_baz.ui.theme.White
+import java.io.File
 
 @Composable
 fun PersonalInformationScreen(
     navController: NavController,
     personalInformationViewModel: PersonalInformationViewModel = hiltViewModel(),
 ) {
-
     val user = personalInformationViewModel.user.value
     var nameVisibility by remember { mutableStateOf(false) }
     var passwordVisibility by remember { mutableStateOf(false) }
-    var imageVisibility by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf(user?.name ?: "") }
     var password by remember { mutableStateOf(user?.password ?: "") }
-    val imageList = remember {
-        mutableListOf(
-            R.drawable.user1,
-            R.drawable.user2,
-            R.drawable.user3,
-            R.drawable.user4,
-            R.drawable.user5,
-            R.drawable.user6,
-            R.drawable.user7,
-            R.drawable.user8,
-            R.drawable.user9,
-            R.drawable.user10,
-        )
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    user?.image?.let { imagePath ->
+        if (selectedImageUri == null) {
+            selectedImageUri = Uri.fromFile(File(imagePath))
+        }
     }
 
     Column(
@@ -99,7 +86,7 @@ fun PersonalInformationScreen(
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                null,
+                contentDescription = null,
                 modifier = Modifier
                     .background(IceMist, CircleShape)
                     .padding(9.dp)
@@ -118,65 +105,25 @@ fun PersonalInformationScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        user?.let {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = user.name.toString(),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(Modifier.width(40.dp))
-                Box(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(150.dp)
-                ) {
-                    Image(
-                        rememberAsyncImagePainter(model = user.image),
-                        null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(CircleShape)
-                            .size(150.dp),
-                        alignment = Alignment.Center
-                    )
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomEnd
-                    ) {
-                        Icon(
-                            Icons.Default.Edit,
-                            null,
-                            modifier = Modifier
-                                .background(BrightOrange, CircleShape)
-                                .padding(9.dp)
-                                .clickable {
-                                    imageVisibility = !imageVisibility
-                                },
-                            tint = White
-                        )
-                    }
-                }
-            }
-        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        AnimatedVisibility(imageVisibility) {
-            LazyRow(
-                reverseLayout = true,
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                items(imageList) {
-                    ItemImageUser(it){
-                        personalInformationViewModel.changeImage(it)
+            Spacer(Modifier.height(12.dp))
+
+            GalleryImagePickerUser(
+                selectedImageUri = selectedImageUri,
+                onImageSelected = { uri ->
+                    selectedImageUri = uri
+                    uri?.let {
+                        val imagePath = selectedImageUri?.let { uri ->
+                            saveImageToInternalStorage(navController.context, uri)
+                        }
+                        personalInformationViewModel.changeImage(imagePath.toString())
                     }
                 }
-            }
+            )
+
         }
 
         Spacer(Modifier.height(16.dp))
@@ -184,44 +131,29 @@ fun PersonalInformationScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    IceMist,
-                    RoundedCornerShape(10.dp)
-                )
+                .background(IceMist, RoundedCornerShape(10.dp))
                 .padding(10.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        nameVisibility = !nameVisibility
-                    },
+                    .clickable { nameVisibility = !nameVisibility },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    Icons.Default.KeyboardArrowDown,
-                    null
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "نام کاربری"
-                        )
-                        Text(
-                            text = user?.name ?: "",
-                            color = SlateGray
-                        )
+                        Text(text = "نام کاربری")
+                        Text(text = user?.name ?: "", color = SlateGray)
                     }
                     Spacer(Modifier.width(10.dp))
                     Icon(
                         painterResource(R.drawable.personal),
-                        null,
+                        contentDescription = null,
                         modifier = Modifier
                             .background(White, CircleShape)
                             .padding(10.dp)
@@ -235,12 +167,9 @@ fun PersonalInformationScreen(
                 Column {
                     Spacer(Modifier.height(10.dp))
                     TextField(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         value = name,
-                        onValueChange = {
-                            name = it
-                        },
+                        onValueChange = { name = it },
                         label = {
                             Text(
                                 text = "نام کاربری",
@@ -250,14 +179,8 @@ fun PersonalInformationScreen(
                             )
                         },
                         isError = name.isBlank(),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.End
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Person, null
-                            )
-                        },
+                        textStyle = TextStyle(textAlign = TextAlign.End),
+                        leadingIcon = { Icon(Icons.Default.Person, null) },
                         shape = RoundedCornerShape(10),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = IceMist,
@@ -274,7 +197,7 @@ fun PersonalInformationScreen(
                             nameVisibility = false
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(10),
                         enabled = name.isNotBlank()
                     ) {
                         Text(text = "تایید", fontSize = 20.sp)
@@ -288,10 +211,7 @@ fun PersonalInformationScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    IceMist,
-                    RoundedCornerShape(10.dp)
-                )
+                .background(IceMist, RoundedCornerShape(10.dp))
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
@@ -300,18 +220,13 @@ fun PersonalInformationScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "شماره همراه"
-                )
-                Text(
-                    text = user?.phone ?: "",
-                    color = SlateGray
-                )
+                Text(text = "شماره همراه")
+                Text(text = user?.phone ?: "", color = SlateGray)
             }
             Spacer(Modifier.width(10.dp))
             Icon(
                 painterResource(R.drawable.call),
-                null,
+                contentDescription = null,
                 modifier = Modifier
                     .background(White, CircleShape)
                     .padding(10.dp)
@@ -325,44 +240,29 @@ fun PersonalInformationScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    IceMist,
-                    RoundedCornerShape(10.dp)
-                )
+                .background(IceMist, RoundedCornerShape(10.dp))
                 .padding(10.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        passwordVisibility = !passwordVisibility
-                    },
+                    .clickable { passwordVisibility = !passwordVisibility },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    Icons.Default.KeyboardArrowDown,
-                    null
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "رمز عبور"
-                        )
-                        Text(
-                            text = user?.password ?: "",
-                            color = SlateGray
-                        )
+                        Text(text = "رمز عبور")
+                        Text(text = user?.password ?: "", color = SlateGray)
                     }
                     Spacer(Modifier.width(10.dp))
                     Icon(
                         Icons.Default.Lock,
-                        null,
+                        contentDescription = null,
                         modifier = Modifier
                             .background(White, CircleShape)
                             .padding(10.dp)
@@ -376,12 +276,9 @@ fun PersonalInformationScreen(
                 Column {
                     Spacer(Modifier.height(10.dp))
                     TextField(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         value = password,
-                        onValueChange = {
-                            password = it
-                        },
+                        onValueChange = { password = it },
                         label = {
                             Text(
                                 text = "رمز عبور",
@@ -391,14 +288,8 @@ fun PersonalInformationScreen(
                             )
                         },
                         isError = password.isBlank(),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.End
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Lock, null
-                            )
-                        },
+                        textStyle = TextStyle(textAlign = TextAlign.End),
+                        leadingIcon = { Icon(Icons.Default.Lock, null) },
                         shape = RoundedCornerShape(10),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = IceMist,
@@ -415,7 +306,7 @@ fun PersonalInformationScreen(
                             passwordVisibility = false
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(10),
                         enabled = password.isNotBlank()
                     ) {
                         Text(text = "تایید", fontSize = 20.sp)
