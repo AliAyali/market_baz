@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.ItemImageUser
@@ -136,7 +137,7 @@ fun PersonalInformationScreen(
                         .height(150.dp)
                 ) {
                     Image(
-                        painterResource(user.image),
+                        rememberAsyncImagePainter(model = user.image),
                         null,
                         modifier = Modifier
                             .fillMaxWidth()

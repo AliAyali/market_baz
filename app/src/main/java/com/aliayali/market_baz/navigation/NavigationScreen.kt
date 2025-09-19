@@ -11,12 +11,17 @@ sealed class NavigationScreen(val route: String) {
     object Product : NavigationScreen("product") {
         fun createRoute(productId: Int) = "$route/$productId"
     }
+
     object Profile : NavigationScreen("profile")
     object PersonalInformation : NavigationScreen("personalInformation")
     object ShoppingCart : NavigationScreen("shoppingCart")
     object Favorite : NavigationScreen("favorite")
     object Address : NavigationScreen("address")
-    object AddNewAddress : NavigationScreen("addNewAddress"){
+    object AddNewAddress : NavigationScreen("addNewAddress") {
         fun createRoute(addressId: Int) = "$route/$addressId"
+    }
+
+    object AddProduct : NavigationScreen("addProduct") {
+        fun createRoute(productId: Int) = "$route/$productId"
     }
 }

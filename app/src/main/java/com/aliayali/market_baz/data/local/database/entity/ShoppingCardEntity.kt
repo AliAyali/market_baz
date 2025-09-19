@@ -9,7 +9,7 @@ data class ShoppingCardEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userPhone: String,
     val productId: Int,
-    val imageUrl: Int,
+    val imageUrl: String,
     val name: String,
     val price: Int,
     val number: Int = 0,
