@@ -88,7 +88,7 @@ fun ProductsSection(
 
         Button(
             onClick = {
-                navController.navigate(NavigationScreen.AddProduct.route) {
+                navController.navigate(NavigationScreen.AddProduct.createRoute(0)) {
                     popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
                     launchSingleTop = true
                 }
@@ -114,7 +114,10 @@ fun ProductsSection(
                         )
                     },
                     onEdit = {
-
+                        navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
+                            popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

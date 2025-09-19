@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,10 +52,12 @@ import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.screens.admin.components.GalleryImagePicker
 import com.aliayali.market_baz.presentation.screens.admin.components.saveImageToInternalStorage
 import com.aliayali.market_baz.ui.theme.IceMist
+import java.io.File
 
 @Composable
 fun AddProductScreen(
     navController: NavController,
+    productId: Int,
     addProductViewModel: AddProductViewModel = hiltViewModel(),
 ) {
     var name by remember { mutableStateOf("") }
@@ -64,6 +68,29 @@ fun AddProductScreen(
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf(ProductCategory.ALL) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var currentProduct by remember { mutableStateOf<ProductEntity?>(null) }
+
+    if (productId != 0 && currentProduct == null) {
+        LaunchedEffect(productId) {
+            addProductViewModel.getProductById(productId) { product ->
+                product?.let {
+                    currentProduct = it
+                    name = it.name
+                    description = it.description ?: ""
+                    price = it.price.toString()
+                    discount = it.discount.toString()
+                    inventory = it.inventory.toString()
+                    selectedCategory =
+                        ProductCategory.entries.firstOrNull { cat -> cat.id == it.categoryId }
+                            ?: ProductCategory.ALL
+
+                    selectedImageUri = if (it.imageUrl.isNotEmpty()) {
+                        Uri.fromFile(File(it.imageUrl))
+                    } else null
+                }
+            }
+        }
+    }
 
     Column(
         Modifier
@@ -79,7 +106,7 @@ fun AddProductScreen(
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                null,
+                contentDescription = null,
                 modifier = Modifier
                     .background(IceMist, CircleShape)
                     .padding(9.dp)
@@ -91,7 +118,7 @@ fun AddProductScreen(
                     }
             )
             Text(
-                text = "افزودن محصول جدید",
+                text = if (currentProduct == null) "افزودن محصول جدید" else "ویرایش محصول",
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -106,15 +133,13 @@ fun AddProductScreen(
             onValueChange = { name = it },
             label = {
                 Text(
-                    text = "نام محصول",
+                    "نام محصول",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(
-                textAlign = TextAlign.End
-            )
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
         )
 
         OutlinedTextField(
@@ -122,15 +147,13 @@ fun AddProductScreen(
             onValueChange = { description = it },
             label = {
                 Text(
-                    text = "توضیحات",
+                    "توضیحات",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(
-                textAlign = TextAlign.End
-            )
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
         )
 
         Row(
@@ -142,15 +165,13 @@ fun AddProductScreen(
                 onValueChange = { price = it },
                 label = {
                     Text(
-                        text = "قیمت",
+                        "قیمت",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(
-                    textAlign = TextAlign.End
-                ),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
             )
 
@@ -159,35 +180,30 @@ fun AddProductScreen(
                 onValueChange = { discount = it },
                 label = {
                     Text(
-                        text = "تخفیف (%)",
+                        "تخفیف (%)",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(
-                    textAlign = TextAlign.End
-                ),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
             )
         }
-
 
         OutlinedTextField(
             value = inventory,
             onValueChange = { inventory = it },
             label = {
                 Text(
-                    text = "موجودی",
+                    "موجودی",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(
-                textAlign = TextAlign.End
-            )
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
         )
 
         Box {
@@ -201,13 +217,8 @@ fun AddProductScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.ArrowDropDown,
-                        null
-                    )
-                    Text(
-                        text = selectedCategory.displayName
-                    )
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    Text(text = selectedCategory.displayName)
                 }
             }
 
@@ -248,29 +259,92 @@ fun AddProductScreen(
                 val imagePath = selectedImageUri?.let { uri ->
                     saveImageToInternalStorage(navController.context, uri)
                 }
+
                 val product = ProductEntity(
+                    id = currentProduct?.id ?: 0,
                     name = name,
                     description = description,
                     price = price.toIntOrNull() ?: 0,
                     discount = discount.toIntOrNull() ?: 0,
                     inventory = inventory.toIntOrNull() ?: 0,
                     categoryId = selectedCategory.id,
-                    imageUrl = imagePath!!
+                    imageUrl = imagePath ?: ""
                 )
-                addProductViewModel.addProduct(product) {
-                    navController.navigate(NavigationScreen.Admin.route) {
-                        popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                        launchSingleTop = true
+
+                if (currentProduct == null) {
+                    addProductViewModel.addProduct(product) {
+                        navController.navigate(NavigationScreen.Admin.route) {
+                            popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                } else {
+                    addProductViewModel.updateProduct(product) {
+                        navController.navigate(NavigationScreen.Admin.route) {
+                            popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp)
         ) {
-            Text(
-                text = "ذخیره محصول",
-                fontSize = 18.sp
-            )
+            Text(text = "ذخیره محصول", fontSize = 18.sp)
         }
+
+        if (currentProduct != null) {
+            var showDialog by remember { mutableStateOf(false) }
+
+            Button(
+                onClick = { showDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(text = "حذف محصول", color = MaterialTheme.colorScheme.onError)
+            }
+
+            if (showDialog) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = {
+                        Text(
+                            text = "حذف محصول",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "آیا مطمئن هستید می‌خواهید این محصول را حذف کنید؟",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = {
+                            currentProduct?.let {
+                                addProductViewModel.deleteProduct(it) {
+                                    navController.navigate(NavigationScreen.Admin.route) {
+                                        popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                            showDialog = false
+                        }) {
+                            Text("بله")
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { showDialog = false }) {
+                            Text("خیر")
+                        }
+                    }
+                )
+            }
+        }
+
     }
 }

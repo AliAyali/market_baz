@@ -127,9 +127,13 @@ fun SetupNavigation(
             )
         }
         composable(
-            route = NavigationScreen.AddProduct.route
-        ) {
-            AddProductScreen(navController)
+            route = NavigationScreen.AddProduct.route + "/{productId}"
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
+            AddProductScreen(
+                navController,
+                productId
+            )
         }
     }
 

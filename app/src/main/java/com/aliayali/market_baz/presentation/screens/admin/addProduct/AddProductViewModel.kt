@@ -12,10 +12,32 @@ import javax.inject.Inject
 class AddProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
 ) : ViewModel() {
+
     fun addProduct(product: ProductEntity, onSuccess: () -> Unit) {
         viewModelScope.launch {
             productRepository.insertProducts(product)
             onSuccess()
+        }
+    }
+
+    fun updateProduct(product: ProductEntity, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            productRepository.updateProduct(product)
+            onSuccess()
+        }
+    }
+
+    fun deleteProduct(product: ProductEntity, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            productRepository.deleteProduct(product)
+            onSuccess()
+        }
+    }
+
+    fun getProductById(id: Int, onResult: (ProductEntity?) -> Unit) {
+        viewModelScope.launch {
+            val product = productRepository.getProductById(id)
+            onResult(product)
         }
     }
 }
