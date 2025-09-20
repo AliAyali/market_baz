@@ -105,6 +105,22 @@ fun HomeScreen(
                                     )
                                 }
                             }
+
+                            if (shoppingCardRepositorySize > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .background(BrightOrange, CircleShape)
+                                        .padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = shoppingCardRepositorySize.toString(),
+                                        color = White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
                         }
                         if (shoppingCardRepositorySize > 0)
                             Text(
