@@ -80,20 +80,32 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Box {
-                        Image(
-                            painterResource(R.drawable.shopping),
-                            null,
-                            Modifier
-                                .background(MidnightBlue, CircleShape)
-                                .padding(15.dp)
-                                .size(20.dp)
-                                .clickable {
-                                    navController.navigate(NavigationScreen.ShoppingCart.route) {
-                                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                                        launchSingleTop = true
-                                    }
+                        Box {
+                            Image(
+                                painterResource(R.drawable.shopping),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .background(MidnightBlue, CircleShape)
+                                    .padding(15.dp)
+                                    .size(20.dp)
+                                    .clickable { }
+                            )
+                            if (shoppingCardRepositorySize > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .background(BrightOrange, CircleShape)
+                                        .padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = shoppingCardRepositorySize.toString(),
+                                        color = White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
                                 }
-                        )
+                            }
+                        }
                         if (shoppingCardRepositorySize > 0)
                             Text(
                                 text = shoppingCardRepositorySize.toString(),
