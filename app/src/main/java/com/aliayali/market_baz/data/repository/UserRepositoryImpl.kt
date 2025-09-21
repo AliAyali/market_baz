@@ -21,4 +21,12 @@ class UserRepositoryImpl @Inject constructor(
         dao.updateUser(user)
     }
 
+    override suspend fun getAllUsers(): List<UserEntity> =
+        dao.getAllUsers()
+
+    override suspend fun deleteUserByPhone(phone: String) {
+        dao.deleteUserByPhone(phone)
+    }
+
+    override suspend fun getUsersCount(): Int = dao.getUsersCount()
 }

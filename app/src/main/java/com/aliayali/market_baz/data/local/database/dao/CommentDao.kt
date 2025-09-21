@@ -20,4 +20,6 @@ interface CommentDao {
     @Query("SELECT * FROM comment_table WHERE productId = :productId ORDER BY id DESC")
     fun getCommentsByProductId(productId: Int): Flow<List<CommentEntity>>
 
+    @Query("SELECT COUNT(*) FROM comment_table")
+    suspend fun getCommentsCount(): Int
 }

@@ -6,17 +6,14 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
@@ -28,11 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.io.InputStream
 
 @Composable
-fun GalleryImagePicker(
+fun GalleryImagePickerUser(
     selectedImageUri: Uri?,
     onImageSelected: (Uri?) -> Unit,
 ) {
@@ -43,26 +41,27 @@ fun GalleryImagePicker(
         onImageSelected(uri)
     }
 
-    val bitmap: Bitmap? by produceState<Bitmap?>(initialValue = null, key1 = selectedImageUri) {
+    val bitmap: Bitmap? by produceState(initialValue = null, key1 = selectedImageUri) {
         value = null
         selectedImageUri?.let { uri ->
-            try {
-                val stream: InputStream? = context.contentResolver.openInputStream(uri)
-                value = stream?.use { BitmapFactory.decodeStream(it) }
+            value = try {
+                when (uri.scheme) {
+                    "file" -> BitmapFactory.decodeFile(uri.path)
+                    else -> {
+                        val stream: InputStream? = context.contentResolver.openInputStream(uri)
+                        stream?.use { BitmapFactory.decodeStream(it) }
+                    }
+                }
             } catch (e: Exception) {
-                value = null
+                null
             }
         }
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
-            modifier = Modifier.size(80.dp),
-            shape = RoundedCornerShape(8.dp)
+            modifier = Modifier.size(120.dp),
+            shape = RoundedCornerShape(60.dp)
         ) {
             if (bitmap != null) {
                 Image(
@@ -71,22 +70,26 @@ fun GalleryImagePicker(
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No image", modifier = Modifier.padding(4.dp))
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "عکس خود را انتخاب کنید",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
 
-        Spacer(Modifier.width(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Column {
-            Button(onClick = { launcher.launch("image/*") }) {
-                Text(text = "انتخاب عکس")
-            }
-            Spacer(Modifier.height(6.dp))
-            androidx.compose.material3.TextButton(onClick = { onImageSelected(null) }) {
-                Text(text = "حذف عکس")
-            }
+        Button(onClick = { launcher.launch("image/*") }) {
+            Text(text = "انتخاب عکس")
         }
     }
 }
+

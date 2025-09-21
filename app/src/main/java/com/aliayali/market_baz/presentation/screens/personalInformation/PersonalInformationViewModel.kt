@@ -61,7 +61,7 @@ class PersonalInformationViewModel @Inject constructor(
         }
     }
 
-    fun changeImage(image: Int) {
+    fun changeImage(image: String) {
         val currentUser = _user.value ?: return
         viewModelScope.launch {
             val updatedUser = currentUser.copy(image = image)

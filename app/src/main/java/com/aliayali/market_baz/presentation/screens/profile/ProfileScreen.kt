@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -85,14 +86,28 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        user?.let {
-            Image(
-                rememberAsyncImagePainter(model = user.image),
-                null,
+        if (user?.image.isNullOrEmpty()) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .size(150.dp)
                     .clip(CircleShape)
-                    .size(150.dp),
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.user_admin),
+                    contentDescription = "پروفایل پیش‌فرض",
+                    tint = Color.White,
+                    modifier = Modifier.size(64.dp)
+                )
+            }
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(model = user.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
                 alignment = Alignment.Center
             )
         }
