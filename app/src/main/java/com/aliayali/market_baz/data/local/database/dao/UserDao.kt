@@ -23,4 +23,7 @@ interface UserDao {
 
     @Query("DELETE FROM user_table WHERE phone = :phone")
     suspend fun deleteUserByPhone(phone: String)
+
+    @Query("SELECT COUNT(*) FROM user_table")
+    suspend fun getUsersCount(): Int
 }

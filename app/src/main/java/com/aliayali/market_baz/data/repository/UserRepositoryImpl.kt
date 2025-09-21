@@ -28,5 +28,5 @@ class UserRepositoryImpl @Inject constructor(
         dao.deleteUserByPhone(phone)
     }
 
-
+    override suspend fun getUsersCount(): Int = dao.getUsersCount()
 }

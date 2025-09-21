@@ -1,5 +1,6 @@
 package com.aliayali.market_baz.domain.repository
 
+import androidx.room.Query
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 
 interface UserRepository {
@@ -8,4 +9,5 @@ interface UserRepository {
     suspend fun updateUser(user: UserEntity)
     suspend fun getAllUsers(): List<UserEntity>
     suspend fun deleteUserByPhone(phone: String)
+    suspend fun getUsersCount(): Int
 }

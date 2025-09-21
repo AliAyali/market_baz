@@ -1,5 +1,6 @@
 package com.aliayali.market_baz.domain.repository
 
+import androidx.room.Query
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,4 +12,5 @@ interface ProductRepository {
     fun getAllProducts(): Flow<List<ProductEntity>>
     suspend fun updateProduct(product: ProductEntity)
     suspend fun deleteProduct(product: ProductEntity)
+    suspend fun getProductsCount(): Int
 }

@@ -32,4 +32,5 @@ class ProductRepositoryImpl @Inject constructor(
         dao.deleteProduct(product)
     }
 
+    override suspend fun getProductsCount(): Int = dao.getProductsCount()
 }
