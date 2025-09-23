@@ -25,7 +25,7 @@ import com.aliayali.market_baz.presentation.screens.admin.usersSection.UsersSect
 
 @Composable
 fun AdminScreen(
-    navController: NavController
+    navController: NavController,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.Products) }
 
@@ -86,7 +86,7 @@ fun AdminScreen(
         Box(modifier = Modifier.padding(padding)) {
             when (selectedTab) {
                 AdminTab.Products -> ProductsSection(navController)
-                AdminTab.Orders -> OrdersSection(navController)
+                AdminTab.Orders -> OrdersSection()
                 AdminTab.Users -> UsersSection(navController)
                 AdminTab.Reports -> ReportsSection(navController)
             }

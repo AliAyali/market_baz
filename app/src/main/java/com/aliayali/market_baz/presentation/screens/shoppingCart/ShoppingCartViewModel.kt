@@ -4,10 +4,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aliayali.market_baz.data.local.database.entity.OrderEntity
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.domain.repository.OrderRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
@@ -22,6 +24,7 @@ class ShoppingCartViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
     private val shoppingCardRepository: ShoppingCardRepository,
+    private val orderRepository: OrderRepository,
 ) : ViewModel() {
 
     private val _user = mutableStateOf<UserEntity?>(null)
@@ -86,10 +89,15 @@ class ShoppingCartViewModel @Inject constructor(
         }
     }
 
-
     fun deleteItem(item: ShoppingCardEntity) {
         viewModelScope.launch {
             shoppingCardRepository.deleteItem(item)
+        }
+    }
+
+    fun insertOrder(order: OrderEntity) {
+        viewModelScope.launch {
+            orderRepository.insertOrder(order)
         }
     }
 
