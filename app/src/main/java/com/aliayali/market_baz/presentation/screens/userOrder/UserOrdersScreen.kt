@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.aliayali.market_baz.R
+import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.screens.admin.components.UserOrderSummaryCard
 import com.aliayali.market_baz.presentation.screens.admin.ordersSection.OrdersViewModel
 
@@ -87,6 +90,28 @@ fun UserOrdersScreen(
                 price = totalPrice,
                 status = status
             )
+
+            Button(
+                onClick = {
+                    navController.navigate(NavigationScreen.Home.route) {
+                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                enabled = status == "DELIVERED",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = "کالا رو تحویل گرفتم",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
 
         }
     } else {
