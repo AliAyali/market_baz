@@ -32,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.aliayali.market_baz.data.local.database.entity.OrderEntity
-import com.aliayali.market_baz.data.model.OrderStatus
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.ShoppingCardItem
 import com.aliayali.market_baz.ui.theme.CoolSlate
@@ -151,29 +149,18 @@ fun ShoppingCartScreen(
                     )
                 }
                 Spacer(Modifier.height(12.dp))
+
                 Button(
                     onClick = {
-                        for (item in shoppingCardList) {
-                            shoppingCartViewModel.insertOrder(
-                                OrderEntity(
-                                    id = 0,
-                                    userPhone = user?.phone ?: "",
-                                    productId = item.productId,
-                                    quantity = item.number,
-                                    totalPrice = item.price * item.number.toDouble(),
-                                    status = OrderStatus.PAID
-                                )
-                            )
-                        }
+                        shoppingCartViewModel.placeOrders(user?.phone ?: "", shoppingCardList)
                         navController.navigate(
-                            NavigationScreen.UserOrders.createRoute(
-                                user?.phone ?: ""
-                            )
+                            NavigationScreen.UserOrders.createRoute(user?.phone ?: "")
                         ) {
                             popUpTo(NavigationScreen.UserOrders.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     },
+                    enabled = shoppingCardList.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -182,6 +169,7 @@ fun ShoppingCartScreen(
                         fontSize = 20.sp
                     )
                 }
+
             }
         }
 

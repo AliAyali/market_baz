@@ -9,6 +9,7 @@ import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.data.model.OrderStatus
 import com.aliayali.market_baz.domain.repository.OrderRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
@@ -100,5 +101,24 @@ class ShoppingCartViewModel @Inject constructor(
             orderRepository.insertOrder(order)
         }
     }
+
+    fun placeOrders(userPhone: String, shoppingCartList: List<ShoppingCardEntity>) {
+        viewModelScope.launch {
+            shoppingCartList.forEach { item ->
+                insertOrder(
+                    OrderEntity(
+                        id = 0,
+                        userPhone = userPhone,
+                        productId = item.productId,
+                        quantity = item.number,
+                        totalPrice = item.price * item.number.toDouble(),
+                        status = OrderStatus.PAID
+                    )
+                )
+                deleteItem(item)
+            }
+        }
+    }
+
 
 }
