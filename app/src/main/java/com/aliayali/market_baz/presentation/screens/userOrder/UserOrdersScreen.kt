@@ -1,18 +1,26 @@
 package com.aliayali.market_baz.presentation.screens.userOrder
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,6 +35,7 @@ import com.aliayali.market_baz.R
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.screens.admin.components.UserOrderSummaryCard
 import com.aliayali.market_baz.presentation.screens.admin.ordersSection.OrdersViewModel
+import com.aliayali.market_baz.ui.theme.IceMist
 
 @Composable
 fun UserOrdersScreen(
@@ -68,12 +77,29 @@ fun UserOrdersScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "سفارش‌های من",
-                style = MaterialTheme.typography.titleLarge,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    null,
+                    modifier = Modifier
+                        .background(IceMist, CircleShape)
+                        .padding(9.dp)
+                        .clickable {
+                            navController.navigate(NavigationScreen.ShoppingCart.route) {
+                                popUpTo(NavigationScreen.ShoppingCart.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                )
+                Text(
+                    text = "سفارش‌های من",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
 
             LottieAnimation(
                 composition = composition,
