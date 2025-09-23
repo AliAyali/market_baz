@@ -86,7 +86,7 @@ fun AdminScreen(
         Box(modifier = Modifier.padding(padding)) {
             when (selectedTab) {
                 AdminTab.Products -> ProductsSection(navController)
-                AdminTab.Orders -> OrdersSection()
+                AdminTab.Orders -> OrdersSection(navController)
                 AdminTab.Users -> UsersSection(navController)
                 AdminTab.Reports -> ReportsSection(navController)
             }

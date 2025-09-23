@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.aliayali.market_baz.presentation.screens.addNewAddress.AddNewAddressScreen
 import com.aliayali.market_baz.presentation.screens.address.AddressScreen
 import com.aliayali.market_baz.presentation.screens.admin.AdminScreen
@@ -22,6 +24,7 @@ import com.aliayali.market_baz.presentation.screens.shoppingCart.ShoppingCartScr
 import com.aliayali.market_baz.presentation.screens.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screens.splash.SplashScreen
 import com.aliayali.market_baz.presentation.screens.user.UserScreen
+import com.aliayali.market_baz.presentation.screens.userOrder.UserOrdersScreen
 import com.aliayali.market_baz.presentation.screens.verification.VerificationScreen
 
 @Composable
@@ -145,6 +148,18 @@ fun SetupNavigation(
                 userPhone ?: ""
             )
         }
+
+        composable(
+            route = NavigationScreen.UserOrders.route,
+            arguments = listOf(navArgument("userPhone") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userPhone = backStackEntry.arguments?.getString("userPhone") ?: ""
+            UserOrdersScreen(
+                navController,
+                userPhone = userPhone
+            )
+        }
+
     }
 
 }

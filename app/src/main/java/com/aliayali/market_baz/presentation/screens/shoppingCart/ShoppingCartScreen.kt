@@ -165,6 +165,14 @@ fun ShoppingCartScreen(
                                 )
                             )
                         }
+                        navController.navigate(
+                            NavigationScreen.UserOrders.createRoute(
+                                user?.phone ?: ""
+                            )
+                        ) {
+                            popUpTo(NavigationScreen.UserOrders.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)

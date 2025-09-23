@@ -1,0 +1,116 @@
+package com.aliayali.market_baz.presentation.screens.userOrder
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.aliayali.market_baz.R
+import com.aliayali.market_baz.presentation.screens.admin.components.UserOrderSummaryCard
+import com.aliayali.market_baz.presentation.screens.admin.ordersSection.OrdersViewModel
+
+@Composable
+fun UserOrdersScreen(
+    navController: NavController,
+    userPhone: String,
+    ordersViewModel: OrdersViewModel = hiltViewModel(),
+) {
+    val orders by ordersViewModel.ordersState.collectAsState()
+    val userOrders = orders.filter { it.order.userPhone == userPhone }
+
+    if (userOrders.isNotEmpty()) {
+        val allProducts = userOrders.joinToString("، ") { it.productNames }
+        val totalQuantity = userOrders.sumOf { it.order.quantity }
+        val totalPrice = userOrders.sumOf { it.order.totalPrice.toInt() }
+        val address = userOrders.first().userAddress
+        val status = userOrders.last().order.status
+
+        val lottieRes = when (status) {
+            "PENDING" -> R.raw.pending
+            "PAID" -> R.raw.paid
+            "SHIPPED" -> R.raw.shipped
+            "DELIVERED" -> R.raw.delivered
+            else -> R.raw.pending
+        }
+
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(lottieRes)
+        )
+
+        val progress by animateLottieCompositionAsState(
+            composition = composition,
+            iterations = LottieConstants.IterateForever
+        )
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "سفارش‌های من",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+
+            UserOrderSummaryCard(
+                products = allProducts,
+                address = address,
+                quantity = totalQuantity,
+                price = totalPrice,
+                status = status
+            )
+
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "شما هنوز سفارشی ثبت نکردید.",
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
