@@ -54,4 +54,15 @@ class OrdersViewModel @Inject constructor(
             orderRepository.updateOrder(updatedOrder)
         }
     }
+
+    fun deleteAllUserOrders(userPhone: String) {
+        viewModelScope.launch {
+            ordersState.value
+                .filter { it.order.userPhone == userPhone }
+                .forEach { orderEntity ->
+                    orderRepository.deleteOrder(orderEntity.order)
+                }
+        }
+    }
+
 }

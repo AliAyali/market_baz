@@ -11,4 +11,5 @@ interface OrderRepository {
     fun getOrdersByStatus(status: String): Flow<List<OrderEntity>>
     fun getOrdersCount(): Flow<Int>
     fun getOrdersCountByStatus(status: String): Flow<Int>
+    suspend fun deleteOrder(order: OrderEntity)
 }

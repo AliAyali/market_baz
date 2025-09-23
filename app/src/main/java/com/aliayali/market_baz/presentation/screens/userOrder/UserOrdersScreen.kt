@@ -93,8 +93,10 @@ fun UserOrdersScreen(
 
             Button(
                 onClick = {
+                    ordersViewModel.deleteAllUserOrders(userPhone)
+
                     navController.navigate(NavigationScreen.Home.route) {
-                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
+                        popUpTo(NavigationScreen.UserOrders.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },

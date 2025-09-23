@@ -1,6 +1,7 @@
 package com.aliayali.market_baz.data.local.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -30,4 +31,7 @@ interface OrderDao {
 
     @Query("SELECT COUNT(*) FROM order_table WHERE status = :status")
     fun getOrdersCountByStatus(status: String): Flow<Int>
+
+    @Delete
+    suspend fun deleteOrder(order: OrderEntity)
 }

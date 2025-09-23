@@ -27,4 +27,8 @@ class OrderRepositoryImpl @Inject constructor(
     override fun getOrdersCount(): Flow<Int> = dao.getOrdersCount()
     override fun getOrdersCountByStatus(status: String): Flow<Int> =
         dao.getOrdersCountByStatus(status)
+
+    override suspend fun deleteOrder(order: OrderEntity) {
+        dao.deleteOrder(order)
+    }
 }
