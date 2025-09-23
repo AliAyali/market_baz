@@ -6,6 +6,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase
 import com.aliayali.market_baz.data.local.database.dao.AddressDao
 import com.aliayali.market_baz.data.local.database.dao.CommentDao
 import com.aliayali.market_baz.data.local.database.dao.FavoriteDao
+import com.aliayali.market_baz.data.local.database.dao.OrderDao
 import com.aliayali.market_baz.data.local.database.dao.ProductDao
 import com.aliayali.market_baz.data.local.database.dao.RatingDao
 import com.aliayali.market_baz.data.local.database.dao.ShoppingCardDao
@@ -70,4 +71,8 @@ object DatabaseModule {
         return database.ratingDao()
     }
 
+    @Provides
+    fun provideOrderDao(database: MyDataBase): OrderDao {
+        return database.orderDao()
+    }
 }
