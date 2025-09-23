@@ -38,6 +38,9 @@ class ShoppingCartViewModel @Inject constructor(
     private val _shoppingCardList = mutableStateOf<List<ShoppingCardEntity>>(emptyList())
     val shoppingCardList: State<List<ShoppingCardEntity>> = _shoppingCardList
 
+    private val _hasPreviousOrders = mutableStateOf(false)
+    val hasPreviousOrders: State<Boolean> = _hasPreviousOrders
+
 
     init {
         viewModelScope.launch {
@@ -46,10 +49,20 @@ class ShoppingCartViewModel @Inject constructor(
                     _phone.value = it
                     getUserByPhone(it)
                     collectShoppingCart(it)
+                    checkPreviousOrders(it)
                 }
             }
         }
     }
+
+    fun checkPreviousOrders(phone: String) {
+        viewModelScope.launch {
+            orderRepository.getOrdersByUser(phone).collect { orders ->
+                _hasPreviousOrders.value = orders.isNotEmpty()
+            }
+        }
+    }
+
 
     private fun collectShoppingCart(phone: String) {
         viewModelScope.launch {

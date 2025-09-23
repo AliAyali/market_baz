@@ -81,6 +81,24 @@ fun ShoppingCartScreen(
                         },
                     tint = White
                 )
+
+                if (shoppingCartViewModel.hasPreviousOrders.value) {
+                    Button(
+                        onClick = {
+                            navController.navigate(
+                                NavigationScreen.UserOrders.createRoute(
+                                    shoppingCartViewModel.user.value?.phone ?: ""
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "سفارش های من")
+                    }
+                }
+
                 Text(
                     text = "سبد خرید", color = White, style = MaterialTheme.typography.titleLarge
                 )
