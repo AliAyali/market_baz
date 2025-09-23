@@ -25,7 +25,7 @@ import com.aliayali.market_baz.presentation.screens.admin.usersSection.UsersSect
 
 @Composable
 fun AdminScreen(
-    navController: NavController
+    navController: NavController,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.Products) }
 

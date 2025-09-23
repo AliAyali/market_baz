@@ -81,6 +81,24 @@ fun ShoppingCartScreen(
                         },
                     tint = White
                 )
+
+                if (shoppingCartViewModel.hasPreviousOrders.value) {
+                    Button(
+                        onClick = {
+                            navController.navigate(
+                                NavigationScreen.UserOrders.createRoute(
+                                    shoppingCartViewModel.user.value?.phone ?: ""
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "سفارش های من")
+                    }
+                }
+
                 Text(
                     text = "سبد خرید", color = White, style = MaterialTheme.typography.titleLarge
                 )
@@ -149,9 +167,18 @@ fun ShoppingCartScreen(
                     )
                 }
                 Spacer(Modifier.height(12.dp))
+
                 Button(
                     onClick = {
+                        shoppingCartViewModel.placeOrders(user?.phone ?: "", shoppingCardList)
+                        navController.navigate(
+                            NavigationScreen.UserOrders.createRoute(user?.phone ?: "")
+                        ) {
+                            popUpTo(NavigationScreen.UserOrders.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     },
+                    enabled = shoppingCardList.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -160,6 +187,7 @@ fun ShoppingCartScreen(
                         fontSize = 20.sp
                     )
                 }
+
             }
         }
 
