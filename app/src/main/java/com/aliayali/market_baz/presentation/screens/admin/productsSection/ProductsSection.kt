@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.screens.admin.components.ProductsItem
 import com.aliayali.market_baz.presentation.ui.SearchTextField
 
@@ -75,7 +76,6 @@ fun ProductsSection(
 
         Spacer(Modifier.height(10.dp))
 
-
         SearchTextField(
             query = searchQuery,
             onQueryChange = {
@@ -104,22 +104,29 @@ fun ProductsSection(
 
         Spacer(Modifier.height(10.dp))
 
-        LazyColumn {
-            items(products) { product ->
-                ProductsItem(
-                    product = product,
-                    onClick = {
-                        navController.navigate(
-                            NavigationScreen.Product.createRoute(product.id)
-                        )
-                    },
-                    onEdit = {
-                        navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
-                            popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
-                            launchSingleTop = true
+        if (products.isEmpty()) {
+            EmptyState(
+                message = "هیچ محصولی موجود نیست",
+                height = 200.dp
+            )
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(products) { product ->
+                    ProductsItem(
+                        product = product,
+                        onClick = {
+                            navController.navigate(
+                                NavigationScreen.Product.createRoute(product.id)
+                            )
+                        },
+                        onEdit = {
+                            navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
+                                popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

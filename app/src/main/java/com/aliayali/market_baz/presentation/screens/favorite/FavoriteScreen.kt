@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.components.FavoriteItem
 import com.aliayali.market_baz.ui.theme.IceMist
 
@@ -63,17 +64,25 @@ fun FavoriteScreen(
             )
         }
 
-        LazyVerticalGrid(
-            modifier = Modifier.padding(top = 16.dp),
-            columns = GridCells.Adaptive(minSize = 160.dp)
-        ) {
-            items(favorites) {
-                FavoriteItem(
-                    it,
-                ) {
-                    navController.navigate(
-                        NavigationScreen.Product.createRoute(it?.productId ?: 0)
-                    )
+
+        if (favorites.isEmpty()) {
+            EmptyState(
+                message = "هیچ علاقه مندی موجود نیست",
+                height = 200.dp
+            )
+        } else {
+            LazyVerticalGrid(
+                modifier = Modifier.padding(top = 16.dp),
+                columns = GridCells.Adaptive(minSize = 160.dp)
+            ) {
+                items(favorites) {
+                    FavoriteItem(
+                        it,
+                    ) {
+                        navController.navigate(
+                            NavigationScreen.Product.createRoute(it.productId)
+                        )
+                    }
                 }
             }
         }

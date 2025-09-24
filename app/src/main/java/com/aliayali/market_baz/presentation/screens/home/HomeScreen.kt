@@ -1,5 +1,6 @@
 package com.aliayali.market_baz.presentation.screens.home
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +43,7 @@ import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.model.ProductCategory
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.CategoryItem
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.presentation.ui.SearchTextField
@@ -56,7 +58,6 @@ fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
-
     var selectedCategory by remember { mutableStateOf(ProductCategory.ALL) }
     val categories = ProductCategory.entries
     val user = homeViewModel.user.value
@@ -65,6 +66,12 @@ fun HomeScreen(
     val shoppingCardRepositorySize = homeViewModel.shoppingCardRepositorySize.value
     var searchQuery by remember { mutableStateOf("") }
 
+    val displayedProducts = when {
+        searchQuery.isNotEmpty() -> homeViewModel.searchResults.value
+        selectedCategory.id == 0 -> allProduct
+        else -> filteredProducts
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier
@@ -72,7 +79,6 @@ fun HomeScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-
             item {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -126,7 +132,6 @@ fun HomeScreen(
                         )
                     }
 
-
                     Image(
                         painterResource(R.drawable.menu),
                         null,
@@ -145,22 +150,17 @@ fun HomeScreen(
                 Spacer(Modifier.height(30.dp))
             }
 
+
             item {
-                Row(
+                Text(
+                    text = "سلام ${user?.name ?: "کاربر"}، روزت بخیر!",
+                    fontSize = 18.sp,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "سلام ${user?.name ?: "کاربر"}، روزت بخیر!",
-                        fontSize = 18.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = TextStyle(
-                            textDirection = TextDirection.Rtl,
-                        )
-                    )
-                }
+                    style = TextStyle(textDirection = TextDirection.Rtl)
+                )
                 Spacer(Modifier.height(30.dp))
             }
+
 
             item {
                 SearchTextField(
@@ -179,13 +179,8 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            null
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
                         Text(
                             text = "دیدن همه",
                             fontSize = 18.sp,
@@ -197,26 +192,26 @@ fun HomeScreen(
                             }
                         )
                     }
-                    Text(
-                        text = "محبوب",
-                        fontSize = 18.sp
-                    )
+                    Text(text = "محبوب", fontSize = 18.sp)
                 }
                 Spacer(Modifier.height(10.dp))
             }
 
+
             item {
-                LazyRow(
-                    Modifier.fillMaxWidth(),
-                    reverseLayout = true
-                ) {
-                    items(allProduct) {
-                        if (it.discount > 0)
-                            ProductItemSmallFavorite(it) {
-                                navController.navigate(
-                                    NavigationScreen.Product.createRoute(it.id)
-                                )
+                val popularProducts = allProduct.filter { it.discount > 0 }
+                if (popularProducts.isEmpty()) {
+                    EmptyState(message = "هیچ محصول محبوبی موجود نیست", height = 150.dp)
+                } else {
+                    LazyRow(
+                        Modifier.fillMaxWidth(),
+                        reverseLayout = true
+                    ) {
+                        items(popularProducts) { product ->
+                            ProductItemSmallFavorite(product) {
+                                navController.navigate(NavigationScreen.Product.createRoute(product.id))
                             }
+                        }
                     }
                 }
                 Spacer(Modifier.height(30.dp))
@@ -228,13 +223,8 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            null
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
                         Text(
                             text = "دیدن همه",
                             fontSize = 18.sp,
@@ -246,18 +236,15 @@ fun HomeScreen(
                             }
                         )
                     }
-                    Text(
-                        text = "همه دسته ها",
-                        fontSize = 18.sp
-                    )
+                    Text(text = "همه دسته ها", fontSize = 18.sp)
                 }
                 Spacer(Modifier.height(10.dp))
             }
 
+
             item {
                 LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     reverseLayout = true,
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
@@ -275,21 +262,23 @@ fun HomeScreen(
                 Spacer(Modifier.height(10.dp))
             }
 
-            items(
-                when {
-                    searchQuery.isNotEmpty() -> homeViewModel.searchResults.value
-                    selectedCategory.id == 0 -> allProduct
-                    else -> filteredProducts
-                }
-            ) { product ->
-                ProductItemBig(product) {
-                    navController.navigate(
-                        NavigationScreen.Product.createRoute(product.id)
+            if (displayedProducts.isEmpty()) {
+                item {
+                    EmptyState(
+                        message = "هیچ محصولی موجود نیست",
+                        height = 200.dp
                     )
+                }
+            } else {
+                items(displayedProducts) { product ->
+                    ProductItemBig(product) {
+                        navController.navigate(NavigationScreen.Product.createRoute(product.id))
+                    }
                 }
             }
         }
-        if (user?.isAdmin ?: false)
+
+        if (user?.isAdmin == true) {
             androidx.compose.material3.FloatingActionButton(
                 onClick = {
                     navController.navigate(NavigationScreen.Admin.route) {
@@ -309,6 +298,6 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
+        }
     }
-
 }

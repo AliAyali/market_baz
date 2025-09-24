@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import com.aliayali.market_baz.data.local.database.entity.AddressEntity
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.AddressItem
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.ui.theme.IceMist
 
 @Composable
@@ -87,37 +88,47 @@ fun AddressScreen(
                 )
             }
 
+
             LazyColumn(
                 modifier = Modifier.padding(top = 15.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(addresses) {
-                    AddressItem(
-                        it.name,
-                        "${it.city} - ${it.street} - ${it.milan} - پلاک ${it.plate} - طبقه ${it.floor}",
-                        onEdite = {
-                            navController.navigate(NavigationScreen.AddNewAddress.createRoute(it.id)) {
-                                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
-                                launchSingleTop = true
+                if (addresses.isEmpty()) {
+                    item {
+                        EmptyState(
+                            message = "هیچ آدرسی موجود نیست",
+                            height = 200.dp
+                        )
+                    }
+                } else {
+                    items(addresses) {
+                        AddressItem(
+                            it.name,
+                            "${it.city} - ${it.street} - ${it.milan} - پلاک ${it.plate} - طبقه ${it.floor}",
+                            onEdite = {
+                                navController.navigate(NavigationScreen.AddNewAddress.createRoute(it.id)) {
+                                    popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onDelete = {
+                                addressToDelete = it
+                                alertDialog = true
+                            },
+                            onClick = {
+                                addressViewModel.updateUserAddress(
+                                    "${it.city} - ${it.street} - ${it.milan} - پلاک ${it.plate} - طبقه ${it.floor}"
+                                )
+                                navController.navigate(NavigationScreen.Profile.route) {
+                                    popUpTo(NavigationScreen.Profile.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }
-                        },
-                        onDelete = {
-                            addressToDelete = it
-                            alertDialog = true
-                        },
-                        onClick = {
-                            addressViewModel.updateUserAddress(
-                                "${it.city} - ${it.street} - ${it.milan} - پلاک ${it.plate} - طبقه ${it.floor}"
-                            )
-                            navController.navigate(NavigationScreen.Profile.route) {
-                                popUpTo(NavigationScreen.Profile.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                    )
-                }
-                item {
-                    Spacer(Modifier.height(50.dp))
+                        )
+                    }
+                    item {
+                        Spacer(Modifier.height(50.dp))
+                    }
                 }
             }
         }

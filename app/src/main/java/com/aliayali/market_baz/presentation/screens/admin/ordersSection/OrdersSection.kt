@@ -37,10 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.screens.admin.components.UserCardWithStatus
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersSection(
     navController: NavController,
@@ -87,19 +88,27 @@ fun OrdersSection(
             )
         }
         Spacer(Modifier.height(8.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(ordersByUser.entries.toList()) { (userPhone, userOrders) ->
-                UserCardWithStatus(
-                    userPhone = userPhone,
-                    userOrders = userOrders,
-                    ordersViewModel = ordersViewModel,
-                    onClick = {
-                        selectedUserOrders = userOrders
-                        coroutineScope.launch {
-                            bottomSheetState.show()
+
+        if (ordersByUser.isEmpty()) {
+            EmptyState(
+                message = "هیچ سفارشی موجود نیست",
+                height = 200.dp
+            )
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(ordersByUser.entries.toList()) { (userPhone, userOrders) ->
+                    UserCardWithStatus(
+                        userPhone = userPhone,
+                        userOrders = userOrders,
+                        ordersViewModel = ordersViewModel,
+                        onClick = {
+                            selectedUserOrders = userOrders
+                            coroutineScope.launch {
+                                bottomSheetState.show()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -148,5 +157,6 @@ fun OrdersSection(
         }
     }
 }
+
 
 
