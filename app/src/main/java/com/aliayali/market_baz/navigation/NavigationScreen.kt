@@ -32,4 +32,8 @@ sealed class NavigationScreen(val route: String) {
     object UserOrders : NavigationScreen("user_orders/{userPhone}") {
         fun createRoute(userPhone: String) = "user_orders/$userPhone"
     }
+    object SeeAll : NavigationScreen("seeAll") {
+        fun createRoute(title: String) = "$route/$title"
+    }
+
 }

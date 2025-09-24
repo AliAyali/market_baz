@@ -188,7 +188,13 @@ fun HomeScreen(
                         )
                         Text(
                             text = "دیدن همه",
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            modifier = Modifier.clickable {
+                                navController.navigate(NavigationScreen.SeeAll.createRoute("محبوب ها")) {
+                                    popUpTo(NavigationScreen.SeeAll.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
                     Text(
@@ -231,7 +237,13 @@ fun HomeScreen(
                         )
                         Text(
                             text = "دیدن همه",
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            modifier = Modifier.clickable {
+                                navController.navigate(NavigationScreen.SeeAll.createRoute("همه محصولات")) {
+                                    popUpTo(NavigationScreen.SeeAll.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
                     Text(
