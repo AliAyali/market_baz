@@ -1,9 +1,10 @@
-package com.aliayali.market_baz.presentation.screens.favorite
+package com.aliayali.market_baz.presentation.screens.seeAll
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,70 +22,56 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.navigation.NavigationScreen
-import com.aliayali.market_baz.presentation.components.EmptyState
-import com.aliayali.market_baz.presentation.components.FavoriteItem
+import com.aliayali.market_baz.presentation.components.SeeAllItem
 import com.aliayali.market_baz.ui.theme.IceMist
 
 @Composable
-fun FavoriteScreen(
+fun SeeAllScreen(
+    title: String,
+    products: List<ProductEntity>,
     navController: NavController,
-    favoriteViewModel: FavoriteViewModel = hiltViewModel(),
 ) {
-    val favorites = favoriteViewModel.favorite.value
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                null,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .background(IceMist, CircleShape)
                     .padding(9.dp)
                     .clickable {
-                        navController.navigate(NavigationScreen.Profile.route) {
-                            popUpTo(NavigationScreen.Profile.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
+                        navController.navigateUp()
                     }
             )
             Text(
-                text = "علاقه مندی ها",
+                text = title,
                 style = MaterialTheme.typography.titleLarge
             )
         }
 
-
-        if (favorites.isEmpty()) {
-            EmptyState(
-                message = "هیچ علاقه مندی موجود نیست",
-                height = 200.dp
-            )
-        } else {
-            LazyVerticalGrid(
-                modifier = Modifier.padding(top = 16.dp),
-                columns = GridCells.Adaptive(minSize = 160.dp)
-            ) {
-                items(favorites) {
-                    FavoriteItem(
-                        it,
-                    ) {
-                        navController.navigate(
-                            NavigationScreen.Product.createRoute(it.productId)
-                        )
-                    }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(products) { product ->
+                SeeAllItem(product) {
+                    navController.navigate(NavigationScreen.Product.createRoute(product.id))
                 }
             }
         }
     }
 }
+

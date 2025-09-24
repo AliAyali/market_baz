@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,10 +17,12 @@ import com.aliayali.market_baz.presentation.screens.admin.addProduct.AddProductS
 import com.aliayali.market_baz.presentation.screens.favorite.FavoriteScreen
 import com.aliayali.market_baz.presentation.screens.forgotPassword.ForgotPasswordScreen
 import com.aliayali.market_baz.presentation.screens.home.HomeScreen
+import com.aliayali.market_baz.presentation.screens.home.HomeViewModel
 import com.aliayali.market_baz.presentation.screens.login.LoginScreen
 import com.aliayali.market_baz.presentation.screens.personalInformation.PersonalInformationScreen
 import com.aliayali.market_baz.presentation.screens.product.ProductScreen
 import com.aliayali.market_baz.presentation.screens.profile.ProfileScreen
+import com.aliayali.market_baz.presentation.screens.seeAll.SeeAllScreen
 import com.aliayali.market_baz.presentation.screens.shoppingCart.ShoppingCartScreen
 import com.aliayali.market_baz.presentation.screens.signup.SignupScreen
 import com.aliayali.market_baz.presentation.screens.splash.SplashScreen
@@ -157,6 +160,23 @@ fun SetupNavigation(
             UserOrdersScreen(
                 navController,
                 userPhone = userPhone
+            )
+        }
+
+        composable(
+            route = NavigationScreen.SeeAll.route + "/{title}",
+        ) { backStackEntry ->
+            val title = backStackEntry.arguments?.getString("title") ?: ""
+            val homeViewModel: HomeViewModel = hiltViewModel()
+            val products = when (title) {
+                "محبوب ها" -> homeViewModel.product.value.filter { it.discount > 0 }
+                "همه محصولات" -> homeViewModel.product.value
+                else -> emptyList()
+            }
+            SeeAllScreen(
+                title = title,
+                products = products,
+                navController = navController
             )
         }
 

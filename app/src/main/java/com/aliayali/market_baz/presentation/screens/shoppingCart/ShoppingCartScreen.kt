@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.components.ShoppingCardItem
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.IceMist
@@ -104,22 +105,30 @@ fun ShoppingCartScreen(
                 )
             }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(shoppingCardList) { item ->
-                    ShoppingCardItem(
-                        item,
-                        onDecrease = {
-                            shoppingCartViewModel.decreaseItem(item)
-                        },
-                        onIncrease = {
-                            shoppingCartViewModel.increaseItem(item)
-                        },
-                        onDelete = {
-                            shoppingCartViewModel.deleteItem(item)
-                        }
-                    )
+            if (shoppingCardList.isEmpty()) {
+                EmptyState(
+                    message = "هیچ محصولی موجود نیست",
+                    height = 200.dp,
+                    color = MidnightBlue
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(shoppingCardList) { item ->
+                        ShoppingCardItem(
+                            item,
+                            onDecrease = {
+                                shoppingCartViewModel.decreaseItem(item)
+                            },
+                            onIncrease = {
+                                shoppingCartViewModel.increaseItem(item)
+                            },
+                            onDelete = {
+                                shoppingCartViewModel.deleteItem(item)
+                            }
+                        )
+                    }
                 }
             }
         }
