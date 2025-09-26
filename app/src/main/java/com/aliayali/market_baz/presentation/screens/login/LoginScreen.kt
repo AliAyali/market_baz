@@ -196,7 +196,6 @@ fun LoginScreen(
             }
         }
 
-
         Row(
             Modifier
                 .fillMaxWidth(),

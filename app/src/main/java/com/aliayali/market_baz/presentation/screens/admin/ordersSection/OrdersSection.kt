@@ -24,14 +24,17 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,6 +42,7 @@ import androidx.navigation.NavController
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.screens.admin.components.UserCardWithStatus
+import com.aliayali.market_baz.presentation.screens.admin.components.showAdminNotification
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +62,16 @@ fun OrdersSection(
     }
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+    var oldOrdersCount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(orders.size) {
+        if (orders.size > oldOrdersCount) {
+            context.showAdminNotification("یک سفارش جدید ثبت شد!")
+        }
+        oldOrdersCount = orders.size
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -76,11 +90,7 @@ fun OrdersSection(
                     }
                 }
             ) {
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = "Home",
-                    Modifier.size(28.dp)
-                )
+                Icon(Icons.Default.Home, contentDescription = "Home", Modifier.size(28.dp))
             }
             Text(
                 text = "سفارشات",
@@ -90,10 +100,7 @@ fun OrdersSection(
         Spacer(Modifier.height(8.dp))
 
         if (ordersByUser.isEmpty()) {
-            EmptyState(
-                message = "هیچ سفارشی موجود نیست",
-                height = 200.dp
-            )
+            EmptyState(message = "هیچ سفارشی موجود نیست", height = 200.dp)
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(ordersByUser.entries.toList()) { (userPhone, userOrders) ->
@@ -103,9 +110,7 @@ fun OrdersSection(
                         ordersViewModel = ordersViewModel,
                         onClick = {
                             selectedUserOrders = userOrders
-                            coroutineScope.launch {
-                                bottomSheetState.show()
-                            }
+                            coroutineScope.launch { bottomSheetState.show() }
                         }
                     )
                 }
@@ -157,6 +162,7 @@ fun OrdersSection(
         }
     }
 }
+
 
 
 
