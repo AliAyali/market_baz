@@ -1,6 +1,5 @@
 package com.aliayali.market_baz.presentation.screens.home
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -143,5 +142,3 @@ fun HomeScreen(
         }
     }
 }
-
-
