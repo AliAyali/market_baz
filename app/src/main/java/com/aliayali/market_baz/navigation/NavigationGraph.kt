@@ -3,6 +3,8 @@ package com.aliayali.market_baz.navigation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -167,12 +169,14 @@ fun SetupNavigation(
             route = NavigationScreen.SeeAll.route + "/{title}",
         ) { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title") ?: ""
-            val homeViewModel: HomeViewModel = hiltViewModel()
+            val homeViewModel: HomeViewModel = hiltViewModel(viewModelStoreOwner = backStackEntry)
+            val uiState by homeViewModel.uiState.collectAsState()
             val products = when (title) {
-                "محبوب ها" -> homeViewModel.product.value.filter { it.discount > 0 }
-                "همه محصولات" -> homeViewModel.product.value
+                "محبوب ها" -> uiState.products.filter { it.discount > 0 }
+                "همه محصولات" -> uiState.products
                 else -> emptyList()
             }
+
             SeeAllScreen(
                 title = title,
                 products = products,
