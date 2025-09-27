@@ -26,8 +26,8 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    private var currentPhone: String? = null
-    private var currentCategoryId: Int = 0
+    private var selectedPhone: String? = null
+    private var selectedCategoryId: Int = 0
 
     init {
         observeUserPreferences()
@@ -36,10 +36,10 @@ class HomeViewModel @Inject constructor(
 
     private fun observeUserPreferences() {
         viewModelScope.launch {
-            userPreferences.phoneNumber.collect { phoneNumber ->
-                phoneNumber?.let {
-                    currentPhone = it
-                    getUserByPhone(it)
+            userPreferences.phoneNumber.collect { phone ->
+                phone?.let {
+                    selectedPhone = it
+                    fetchUser(it)
                     observeShoppingCart(it)
                 }
             }
@@ -66,7 +66,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getUserByPhone(phone: String) {
+    private fun fetchUser(phone: String) {
         viewModelScope.launch {
             runCatching { userRepository.getUserByPhone(phone) }
                 .onSuccess { user ->
@@ -78,8 +78,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getCategory(categoryId: Int) {
-        currentCategoryId = categoryId
+    fun selectCategory(categoryId: Int) {
+        selectedCategoryId = categoryId
         viewModelScope.launch {
             productRepository.getProductsByCategorySortedByStar(categoryId)
                 .catch { e -> updateState { it.copy(errorMessage = e.message) } }
@@ -90,16 +90,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun searchProducts(query: String) {
-        val products = uiState.value.products
-        val results = if (query.isBlank()) {
-            emptyList()
-        } else {
-            products.filter { it.name.contains(query, ignoreCase = true) }
+        val baseList =
+            if (selectedCategoryId == 0) uiState.value.products else uiState.value.filteredProducts
+        val results = if (query.isBlank()) emptyList() else baseList.filter {
+            it.name.contains(query, ignoreCase = true)
         }
         updateState { it.copy(searchResults = results) }
     }
 
     private fun updateState(transform: (HomeUiState) -> HomeUiState) {
         _uiState.update(transform)
+    }
+
+    fun clearError() {
+        updateState { it.copy(errorMessage = null) }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.IceMist
@@ -142,20 +144,15 @@ fun ProductListRow(
     onProductClick: (ProductEntity) -> Unit,
 ) {
     if (products.isEmpty()) {
-        com.aliayali.market_baz.presentation.components.EmptyState(
-            message = emptyMessage,
-            height = 150.dp
-        )
+        EmptyState(message = emptyMessage, height = 150.dp)
     } else {
-        androidx.compose.foundation.lazy.LazyRow(
-            Modifier.fillMaxWidth(),
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
             reverseLayout = true,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(products) { product ->
-                ProductItemSmallFavorite(product) {
-                    onProductClick(product)
-                }
+                ProductItemSmallFavorite(product) { onProductClick(product) }
             }
         }
     }
@@ -164,7 +161,7 @@ fun ProductListRow(
 @Composable
 fun AdminFab(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FloatingActionButton(
         onClick = onClick,

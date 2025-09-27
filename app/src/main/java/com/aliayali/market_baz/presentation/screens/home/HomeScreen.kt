@@ -54,18 +54,8 @@ fun HomeScreen(
                     HomeHeader(
                         user = it,
                         shoppingCartSize = uiState.shoppingCartSize,
-                        onCartClick = {
-                            navController.navigate(NavigationScreen.ShoppingCart.route) {
-                                popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                                launchSingleTop = true
-                            }
-                        },
-                        onMenuClick = {
-                            navController.navigate(NavigationScreen.Profile.route) {
-                                popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                                launchSingleTop = true
-                            }
-                        }
+                        onCartClick = { navController.navigate(NavigationScreen.ShoppingCart.route) },
+                        onMenuClick = { navController.navigate(NavigationScreen.Profile.route) }
                     )
                 }
             }
@@ -88,10 +78,7 @@ fun HomeScreen(
                 SectionHeader(
                     title = "محبوب",
                     onSeeAllClick = {
-                        navController.navigate(NavigationScreen.SeeAll.createRoute("محبوب ها")) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                            launchSingleTop = true
-                        }
+                        navController.navigate(NavigationScreen.SeeAll.createRoute("محبوب ها"))
                     }
                 )
             }
@@ -101,10 +88,7 @@ fun HomeScreen(
                     products = uiState.products.filter { it.discount > 0 },
                     emptyMessage = "هیچ محصول محبوبی موجود نیست",
                     onProductClick = { product ->
-                        navController.navigate(NavigationScreen.Product.createRoute(product.id)) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                            launchSingleTop = true
-                        }
+                        navController.navigate(NavigationScreen.Product.createRoute(product.id))
                     }
                 )
             }
@@ -113,10 +97,7 @@ fun HomeScreen(
                 SectionHeader(
                     title = "همه دسته‌ها",
                     onSeeAllClick = {
-                        navController.navigate(NavigationScreen.SeeAll.createRoute("همه محصولات")) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                            launchSingleTop = true
-                        }
+                        navController.navigate(NavigationScreen.SeeAll.createRoute("همه محصولات"))
                     }
                 )
             }
@@ -132,7 +113,7 @@ fun HomeScreen(
                             data = category,
                             selected = category == selectedCategory
                         ) {
-                            homeViewModel.getCategory(category.id)
+                            homeViewModel.selectCategory(category.id)
                             selectedCategory = category
                         }
                     }
@@ -146,10 +127,7 @@ fun HomeScreen(
             } else {
                 items(displayedProducts) { product ->
                     ProductItemBig(product) {
-                        navController.navigate(NavigationScreen.Product.createRoute(product.id)) {
-                            popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                            launchSingleTop = true
-                        }
+                        navController.navigate(NavigationScreen.Product.createRoute(product.id))
                     }
                 }
             }
@@ -157,18 +135,13 @@ fun HomeScreen(
 
         if (uiState.user?.isAdmin == true) {
             AdminFab(
-                onClick = {
-                    navController.navigate(NavigationScreen.Admin.route) {
-                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                        launchSingleTop = true
-                    }
-                },
+                onClick = { navController.navigate(NavigationScreen.Admin.route) },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(16.dp)
             )
         }
-
     }
 }
+
 
