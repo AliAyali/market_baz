@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +30,7 @@ import com.aliayali.market_baz.presentation.components.CategoryItem
 import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.ui.ProductItemBig
 import com.aliayali.market_baz.presentation.ui.SearchTextField
+import com.aliayali.market_baz.ui.theme.BrightOrange
 
 @Composable
 fun HomeScreen(
@@ -34,6 +40,7 @@ fun HomeScreen(
     val uiState by homeViewModel.uiState.collectAsState()
     var selectedCategory by remember { mutableStateOf(ProductCategory.ALL) }
     var searchQuery by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val displayedProducts = when {
         searchQuery.isNotEmpty() -> uiState.searchResults
@@ -41,104 +48,130 @@ fun HomeScreen(
         else -> uiState.filteredProducts
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            homeViewModel.clearError()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValues)
         ) {
-            item {
-                uiState.user?.let {
-                    HomeHeader(
-                        user = it,
-                        shoppingCartSize = uiState.shoppingCartSize,
-                        onCartClick = { navController.navigate(NavigationScreen.ShoppingCart.route) },
-                        onMenuClick = { navController.navigate(NavigationScreen.Profile.route) }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    uiState.user?.let {
+                        HomeHeader(
+                            user = it,
+                            shoppingCartSize = uiState.shoppingCartSize,
+                            onCartClick = { navController.navigate(NavigationScreen.ShoppingCart.route) },
+                            onMenuClick = { navController.navigate(NavigationScreen.Profile.route) }
+                        )
+                    }
+                }
+
+                item {
+                    GreetingSection(userName = uiState.user?.name)
+                }
+
+                item {
+                    SearchTextField(
+                        query = searchQuery,
+                        onQueryChange = {
+                            searchQuery = it
+                            homeViewModel.searchProducts(it)
+                        }
                     )
                 }
-            }
 
-            item {
-                GreetingSection(userName = uiState.user?.name)
-            }
+                item {
+                    SectionHeader(
+                        title = "محبوب",
+                        onSeeAllClick = {
+                            navController.navigate(NavigationScreen.SeeAll.createRoute("محبوب ها"))
+                        }
+                    )
+                }
 
-            item {
-                SearchTextField(
-                    query = searchQuery,
-                    onQueryChange = {
-                        searchQuery = it
-                        homeViewModel.searchProducts(it)
+                item {
+                    ProductListRow(
+                        products = uiState.products.filter { it.discount > 0 },
+                        emptyMessage = "هیچ محصول محبوبی موجود نیست",
+                        onProductClick = { product ->
+                            navController.navigate(NavigationScreen.Product.createRoute(product.id))
+                        }
+                    )
+                }
+
+                item {
+                    SectionHeader(
+                        title = "همه دسته‌ها",
+                        onSeeAllClick = {
+                            navController.navigate(NavigationScreen.SeeAll.createRoute("همه محصولات"))
+                        }
+                    )
+                }
+
+                item {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        reverseLayout = true
+                    ) {
+                        items(ProductCategory.entries) { category ->
+                            CategoryItem(
+                                data = category,
+                                selected = category == selectedCategory
+                            ) {
+                                homeViewModel.selectCategory(category.id)
+                                selectedCategory = category
+                            }
+                        }
                     }
-                )
-            }
+                }
 
-            item {
-                SectionHeader(
-                    title = "محبوب",
-                    onSeeAllClick = {
-                        navController.navigate(NavigationScreen.SeeAll.createRoute("محبوب ها"))
+                if (displayedProducts.isEmpty()) {
+                    item {
+                        EmptyState(message = "هیچ محصولی موجود نیست", height = 200.dp)
                     }
-                )
-            }
-
-            item {
-                ProductListRow(
-                    products = uiState.products.filter { it.discount > 0 },
-                    emptyMessage = "هیچ محصول محبوبی موجود نیست",
-                    onProductClick = { product ->
-                        navController.navigate(NavigationScreen.Product.createRoute(product.id))
-                    }
-                )
-            }
-
-            item {
-                SectionHeader(
-                    title = "همه دسته‌ها",
-                    onSeeAllClick = {
-                        navController.navigate(NavigationScreen.SeeAll.createRoute("همه محصولات"))
-                    }
-                )
-            }
-
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    reverseLayout = true
-                ) {
-                    items(ProductCategory.entries) { category ->
-                        CategoryItem(
-                            data = category,
-                            selected = category == selectedCategory
-                        ) {
-                            homeViewModel.selectCategory(category.id)
-                            selectedCategory = category
+                } else {
+                    items(displayedProducts) { product ->
+                        ProductItemBig(product) {
+                            navController.navigate(NavigationScreen.Product.createRoute(product.id))
                         }
                     }
                 }
             }
 
-            if (displayedProducts.isEmpty()) {
-                item {
-                    EmptyState(message = "هیچ محصولی موجود نیست", height = 200.dp)
-                }
-            } else {
-                items(displayedProducts) { product ->
-                    ProductItemBig(product) {
-                        navController.navigate(NavigationScreen.Product.createRoute(product.id))
-                    }
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = BrightOrange
+                    )
                 }
             }
-        }
 
-        if (uiState.user?.isAdmin == true) {
-            AdminFab(
-                onClick = { navController.navigate(NavigationScreen.Admin.route) },
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-            )
+            if (uiState.user?.isAdmin == true) {
+                AdminFab(
+                    onClick = { navController.navigate(NavigationScreen.Admin.route) },
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }
