@@ -1,17 +1,17 @@
 package com.aliayali.market_baz.presentation.screens.home
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
-import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.aliayali.market_baz.domain.repository.ShoppingCardRepository
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,82 +20,89 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
     private val userPreferences: UserPreferences,
-    private val shoppingCardRepository: ShoppingCardRepository,
+    private val shoppingCartRepository: ShoppingCardRepository,
 ) : ViewModel() {
 
-    private val _shoppingCardRepositorySize = mutableIntStateOf(0)
-    val shoppingCardRepositorySize: State<Int> = _shoppingCardRepositorySize
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    private val _user = mutableStateOf<UserEntity?>(null)
-    val user: State<UserEntity?> = _user
-
-    private val _product = mutableStateOf<List<ProductEntity>>(emptyList())
-    val product: State<List<ProductEntity>> = _product
-
-    private var _phone = mutableStateOf("")
-    private var _category = mutableIntStateOf(0)
-    private val _filteredProducts = mutableStateOf<List<ProductEntity>>(listOf())
-    val filteredProducts: State<List<ProductEntity>> = _filteredProducts
-    private val _searchResults = mutableStateOf<List<ProductEntity>>(emptyList())
-    val searchResults: State<List<ProductEntity>> = _searchResults
-
-
-    fun getUserByPhone(phone: String) {
-        viewModelScope.launch {
-            val result = userRepository.getUserByPhone(phone)
-            if (result != null) {
-                _user.value = result
-            } else {
-                _user.value = null
-            }
-        }
-    }
+    private var selectedPhone: String? = null
+    private var selectedCategoryId: Int = 0
 
     init {
+        observeUserPreferences()
+        observeAllProducts()
+    }
+
+    private fun observeUserPreferences() {
         viewModelScope.launch {
-            userPreferences.phoneNumber.collect { phoneNumber ->
-                phoneNumber?.let {
-                    _phone.value = it
-                    getUserByPhone(it)
-                    collectShoppingCart(it)
+            userPreferences.phoneNumber.collect { phone ->
+                phone?.let {
+                    selectedPhone = it
+                    fetchUser(it)
+                    observeShoppingCart(it)
                 }
             }
         }
+    }
 
+    private fun observeAllProducts() {
         viewModelScope.launch {
-            productRepository.getAllProducts().collect { products ->
-                _product.value = products
-            }
+            productRepository.getAllProducts()
+                .catch { e -> updateState { it.copy(errorMessage = e.message) } }
+                .collect { products ->
+                    updateState { it.copy(products = products) }
+                }
         }
     }
 
-    private fun collectShoppingCart(phone: String) {
+    private fun observeShoppingCart(phone: String) {
         viewModelScope.launch {
-            shoppingCardRepository.getAllItems(phone).collect { items ->
-                _shoppingCardRepositorySize.intValue = items.size
-            }
+            shoppingCartRepository.getAllItems(phone)
+                .catch { e -> updateState { it.copy(errorMessage = e.message) } }
+                .collect { items ->
+                    updateState { it.copy(shoppingCartSize = items.size) }
+                }
         }
     }
 
-    fun getCategory(categoryId: Int) {
-        _category.intValue = categoryId
+    private fun fetchUser(phone: String) {
         viewModelScope.launch {
-            productRepository.getProductsByCategorySortedByStar(categoryId).collect { products ->
-                _filteredProducts.value = products
-            }
+            runCatching { userRepository.getUserByPhone(phone) }
+                .onSuccess { user ->
+                    updateState { it.copy(user = user) }
+                }
+                .onFailure { e ->
+                    updateState { it.copy(errorMessage = e.message) }
+                }
+        }
+    }
+
+    fun selectCategory(categoryId: Int) {
+        selectedCategoryId = categoryId
+        viewModelScope.launch {
+            productRepository.getProductsByCategorySortedByStar(categoryId)
+                .catch { e -> updateState { it.copy(errorMessage = e.message) } }
+                .collect { products ->
+                    updateState { it.copy(filteredProducts = products) }
+                }
         }
     }
 
     fun searchProducts(query: String) {
-        viewModelScope.launch {
-            if (query.isBlank()) {
-                _searchResults.value = emptyList()
-            } else {
-                _searchResults.value = product.value.filter { product ->
-                    product.name.contains(query, ignoreCase = true)
-                }
-            }
+        val baseList =
+            if (selectedCategoryId == 0) uiState.value.products else uiState.value.filteredProducts
+        val results = if (query.isBlank()) emptyList() else baseList.filter {
+            it.name.contains(query, ignoreCase = true)
         }
+        updateState { it.copy(searchResults = results) }
     }
 
+    private fun updateState(transform: (HomeUiState) -> HomeUiState) {
+        _uiState.update(transform)
+    }
+
+    fun clearError() {
+        updateState { it.copy(errorMessage = null) }
+    }
 }
