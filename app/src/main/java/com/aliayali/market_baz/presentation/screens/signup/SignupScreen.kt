@@ -66,7 +66,6 @@ fun SignupScreen(
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let { message ->
             println("Error: $message")
-            signupViewModel.clearError()
         }
     }
 
@@ -77,7 +76,6 @@ fun SignupScreen(
                 launchSingleTop = true
             }
             signupViewModel.clearSuccess()
-            signupViewModel.clearError()
         }
     }
 
@@ -101,12 +99,21 @@ fun SignupScreen(
                 name = it
                 signupViewModel.clearError()
             },
-            label = { Text("نام", fontSize = 15.sp) },
+            label = {
+                Text(
+                    text = "نام", fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
             leadingIcon = { Icon(Icons.Default.Person, null) },
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             textStyle = TextStyle(textAlign = TextAlign.End)
         )
@@ -118,16 +125,25 @@ fun SignupScreen(
                 phone = normalizePhoneNumber(it)
                 signupViewModel.clearError()
             },
-            label = { Text("شماره همراه", fontSize = 15.sp) },
+            label = {
+                Text(
+                    text = "شماره همراه", fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
             leadingIcon = { Icon(Icons.Default.Phone, null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             isError = !isValidPhoneNumber(phone),
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
-            textStyle = TextStyle(textAlign = TextAlign.End)
+            textStyle = TextStyle(textAlign = TextAlign.Start)
         )
 
         TextField(
@@ -137,7 +153,13 @@ fun SignupScreen(
                 password = it
                 signupViewModel.clearError()
             },
-            label = { Text("رمز", fontSize = 15.sp) },
+            label = {
+                Text(
+                    "رمز", fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
             leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -152,7 +174,10 @@ fun SignupScreen(
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             textStyle = TextStyle(textAlign = TextAlign.End)
         )
@@ -164,7 +189,13 @@ fun SignupScreen(
                 rePassword = it
                 signupViewModel.clearError()
             },
-            label = { Text("رمز عبور را دوباره تایپ کنید", fontSize = 15.sp) },
+            label = {
+                Text(
+                    "رمز عبور را دوباره تایپ کنید", fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            },
             leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = if (rePasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -179,7 +210,10 @@ fun SignupScreen(
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist
+                focusedIndicatorColor = IceMist,
+                errorIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             textStyle = TextStyle(textAlign = TextAlign.End)
         )
@@ -187,7 +221,7 @@ fun SignupScreen(
         Button(
             onClick = {
                 signupViewModel.getDataByPhone(phone)
-                signupViewModel.insertUser(phone, name, password)
+                signupViewModel.signup(phone, name, password)
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
@@ -206,8 +240,6 @@ fun SignupScreen(
                 Text(text = "ثبت نام", fontSize = 20.sp)
             }
         }
-
-        Spacer(Modifier.height(20.dp))
 
         Row(
             Modifier.fillMaxWidth(),

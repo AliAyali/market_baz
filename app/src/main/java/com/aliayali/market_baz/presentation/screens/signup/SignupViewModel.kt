@@ -26,9 +26,30 @@ class SignupViewModel @Inject constructor(
         _uiState.update(transform)
     }
 
-    fun insertUser(phone: String, name: String, password: String) {
+    fun signup(phone: String, name: String, password: String) {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true) }
+            runCatching {
+                repository.getUserByPhone(phone)
+            }.onSuccess { user ->
+                if (user == null) {
+                    insertUserInternal(phone, name, password)
+                } else {
+                    updateState {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "این شماره از قبل وجود دارد"
+                        )
+                    }
+                }
+            }.onFailure { e ->
+                updateState { it.copy(isLoading = false, errorMessage = e.message) }
+            }
+        }
+    }
+
+    private fun insertUserInternal(phone: String, name: String, password: String) {
+        viewModelScope.launch {
             runCatching {
                 repository.insertUser(UserEntity(phone, name = name, password = password))
             }.onSuccess {
