@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,48 +53,41 @@ fun LoginScreen(
     navController: NavController,
     loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
+    val uiState by loginViewModel.uiState.collectAsState()
+
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val user by loginViewModel.user
-    val error = loginViewModel.error
-    var progress by loginViewModel.progress
 
     AuthenticationHeader(
-        "وارد شوید",
-        "لطفا وارد حساب کاربری موجود خود شوید",
+        title = "وارد شوید",
+        detail = "لطفا وارد حساب کاربری خود شوید"
     ) {
-        Text(
-            text = error.value,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.End
-        )
+        uiState.errorMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
 
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
             value = phone,
             onValueChange = {
                 phone = normalizePhoneNumber(it)
+                loginViewModel.clearError()
             },
             label = {
                 Text(
-                    text = "شماره همراه",
+                    "شماره همراه",
                     fontSize = 15.sp,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
             },
+            leadingIcon = { Icon(Icons.Default.Phone, null) },
             isError = !isValidPhoneNumber(phone),
-            textStyle = TextStyle(
-                textAlign = TextAlign.Start
-            ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Phone, null
-                )
-            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
@@ -100,36 +96,26 @@ fun LoginScreen(
                 errorIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
-            )
+            ),
+            textStyle = TextStyle(textAlign = TextAlign.Start)
         )
 
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
             value = password,
             onValueChange = {
                 password = it
+                loginViewModel.clearError()
             },
             label = {
                 Text(
-                    text = "رمز",
+                    "رمز عبور",
                     fontSize = 15.sp,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
             },
-            enabled = true,
-            isError = false,
-            textStyle = TextStyle(
-                textAlign = TextAlign.Start
-            ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Lock, null
-                )
-            },
+            leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
                 val icon = if (passwordVisible) painterResource(R.drawable.ic_visibility)
                 else painterResource(R.drawable.ic_visibility_off)
@@ -144,73 +130,61 @@ fun LoginScreen(
                 errorIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
-            )
-        )
-
-        Text(
-            text = "فراموش کردن رمز عبور",
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    navController.navigate(NavigationScreen.ForgotPassword.route) {
-                        popUpTo(NavigationScreen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                },
-            textAlign = TextAlign.End,
-            color = MaterialTheme.colorScheme.primary
+            ),
+            textStyle = TextStyle(textAlign = TextAlign.Start)
         )
 
         Button(
-            onClick = {
-                loginViewModel.changeProgress(true)
-                loginViewModel.getUserByPhone(phone)
-            },
+            onClick = { loginViewModel.getUserByPhone(phone) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             enabled = phone.isNotBlank() && password.isNotBlank() && isValidPhoneNumber(phone)
         ) {
-            Row {
-                if (progress)
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                else
-                    Text(text = "ورود", fontSize = 20.sp)
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text("ورود", fontSize = 20.sp)
             }
-
         }
 
-        LaunchedEffect(user) {
-            user?.let {
-                if (it.password == password) {
-                    loginViewModel.loginState(true)
-                    loginViewModel.savePhone(phone)
-                    navController.navigate(NavigationScreen.Verification.route) {
-                        popUpTo(NavigationScreen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
+        LaunchedEffect(uiState.user) {
+            uiState.user?.let { user ->
+                if (user.password == password) {
+                    loginViewModel.login(user)
                 } else {
+                    loginViewModel.clearLoginSuccess()
+                    loginViewModel.clearError()
                     loginViewModel.setError("رمز اشتباه است")
                 }
             }
         }
 
+        LaunchedEffect(uiState.isLoggedIn) {
+            if (uiState.isLoggedIn) {
+                navController.navigate(NavigationScreen.Verification.route) {
+                    popUpTo(NavigationScreen.Login.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+                loginViewModel.clearLoginSuccess()
+            }
+        }
+
         Row(
-            Modifier
-                .fillMaxWidth(),
+            Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "ثبت نام کنید",
-                modifier = Modifier
-                    .clickable {
-                        navController.navigate(NavigationScreen.Signup.route) {
-                            popUpTo(NavigationScreen.Login.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
+                modifier = Modifier.clickable {
+                    navController.navigate(NavigationScreen.Signup.route) {
+                        popUpTo(NavigationScreen.Login.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.width(10.dp))
@@ -219,7 +193,9 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.tertiary
             )
         }
-    }
 
+        Spacer(modifier = Modifier.height(50.dp))
+    }
 }
+
 
