@@ -1,13 +1,15 @@
 package com.aliayali.market_baz.presentation.screens.signup
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,31 +19,51 @@ class SignupViewModel @Inject constructor(
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
-    private var _user = mutableStateOf<UserEntity?>(null)
-    val user: State<UserEntity?> = _user
-    private var _error = mutableStateOf("")
-    var error: State<String> = _error
+    private val _uiState = MutableStateFlow(SignupUiState())
+    val uiState: StateFlow<SignupUiState> = _uiState.asStateFlow()
+
+    private fun updateState(transform: (SignupUiState) -> SignupUiState) {
+        _uiState.update(transform)
+    }
 
     fun insertUser(phone: String, name: String, password: String) {
         viewModelScope.launch {
-            repository.insertUser(UserEntity(phone, name = name, password = password))
+            updateState { it.copy(isLoading = true) }
+            runCatching {
+                repository.insertUser(UserEntity(phone, name = name, password = password))
+            }.onSuccess {
+                updateState { it.copy(isLoading = false, isUserCreated = true) }
+                savePhone(phone)
+            }.onFailure { e ->
+                updateState { it.copy(isLoading = false, errorMessage = e.message) }
+            }
         }
     }
 
     fun getDataByPhone(phone: String) {
         viewModelScope.launch {
-            _user.value = repository.getUserByPhone(phone)
+            updateState { it.copy(isLoading = true) }
+            runCatching {
+                repository.getUserByPhone(phone)
+            }.onSuccess { user ->
+                updateState { it.copy(isLoading = false, user = user) }
+            }.onFailure { e ->
+                updateState { it.copy(isLoading = false, errorMessage = e.message) }
+            }
         }
     }
 
-    fun setError(error: String) {
-        _error.value = error
-    }
-
-    fun savePhone(phone: String) {
+    private fun savePhone(phone: String) {
         viewModelScope.launch {
             userPreferences.savePhoneNumber(phone)
         }
     }
 
+    fun clearError() {
+        updateState { it.copy(errorMessage = null) }
+    }
+
+    fun clearSuccess() {
+        updateState { it.copy(isUserCreated = false) }
+    }
 }

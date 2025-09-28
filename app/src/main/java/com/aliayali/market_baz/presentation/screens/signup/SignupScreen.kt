@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,7 @@ fun SignupScreen(
     navController: NavController,
     signupViewModel: SignupViewModel = hiltViewModel(),
 ) {
+    val uiState by signupViewModel.uiState.collectAsState()
 
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -60,199 +62,132 @@ fun SignupScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var rePasswordVisible by remember { mutableStateOf(false) }
     val passwordsMatch = password == rePassword || rePassword.isEmpty()
-    var progress by remember { mutableStateOf(false) }
-    val user by signupViewModel.user
-    val error by signupViewModel.error
 
-    LaunchedEffect(user, progress) {
-        if (progress) {
-            if (user == null) {
-                signupViewModel.insertUser(phone, name, password)
-                progress = false
-                signupViewModel.savePhone(phone)
-                navController.navigate(NavigationScreen.Verification.route) {
-                    popUpTo(NavigationScreen.Signup.route) { inclusive = true }
-                    launchSingleTop = true
-                }
-            } else {
-                signupViewModel.setError("این شماره از قبل وجود دارد")
-                progress = false
-            }
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            println("Error: $message")
+            signupViewModel.clearError()
         }
     }
+
+    LaunchedEffect(uiState.isUserCreated) {
+        if (uiState.isUserCreated) {
+            navController.navigate(NavigationScreen.Verification.route) {
+                popUpTo(NavigationScreen.Signup.route) { inclusive = true }
+                launchSingleTop = true
+            }
+            signupViewModel.clearSuccess()
+            signupViewModel.clearError()
+        }
+    }
+
     AuthenticationHeader(
         "ثبت نام کنید",
         "لطفا برای شروع ثبت نام کنید"
     ) {
-
-        Text(
-            text = error,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.End
-        )
+        uiState.errorMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
 
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             value = name,
             onValueChange = {
                 name = it
+                signupViewModel.clearError()
             },
-            label = {
-                Text(
-                    text = "نام",
-                    fontSize = 15.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
-            enabled = true,
-            isError = false,
-            textStyle = TextStyle(
-                textAlign = TextAlign.End
-            ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Person, null
-                )
-            },
+            label = { Text("نام", fontSize = 15.sp) },
+            leadingIcon = { Icon(Icons.Default.Person, null) },
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist,
-                errorIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
-        )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
-            value = phone,
-            onValueChange = {
-                phone = normalizePhoneNumber(it)
-            },
-            label = {
-                Text(
-                    text = "شماره همراه",
-                    fontSize = 15.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
-            enabled = true,
-            isError = !isValidPhoneNumber(phone),
-            textStyle = TextStyle(
-                textAlign = TextAlign.Start
+                focusedIndicatorColor = IceMist
             ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Phone, null
-                )
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            shape = RoundedCornerShape(10),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist,
-                errorIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
+            textStyle = TextStyle(textAlign = TextAlign.End)
         )
 
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
+            value = phone,
+            onValueChange = {
+                phone = normalizePhoneNumber(it)
+                signupViewModel.clearError()
+            },
+            label = { Text("شماره همراه", fontSize = 15.sp) },
+            leadingIcon = { Icon(Icons.Default.Phone, null) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            isError = !isValidPhoneNumber(phone),
+            shape = RoundedCornerShape(10),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = IceMist,
+                focusedIndicatorColor = IceMist
+            ),
+            textStyle = TextStyle(textAlign = TextAlign.End)
+        )
+
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
             value = password,
             onValueChange = {
                 password = it
+                signupViewModel.clearError()
             },
-            label = {
-                Text(
-                    text = "رمز",
-                    fontSize = 15.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
-            enabled = true,
-            isError = !passwordsMatch,
-            textStyle = TextStyle(
-                textAlign = TextAlign.Start
-            ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Lock, null
-                )
-            },
+            label = { Text("رمز", fontSize = 15.sp) },
+            leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
-                val icon = if (passwordVisible) painterResource(R.drawable.ic_visibility)
-                else painterResource(R.drawable.ic_visibility_off)
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    val icon = if (passwordVisible) painterResource(R.drawable.ic_visibility)
+                    else painterResource(R.drawable.ic_visibility_off)
                     Icon(painter = icon, contentDescription = "Visibility")
                 }
             },
+            isError = !passwordsMatch,
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist,
-                errorIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
-        )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
-            value = rePassword,
-            onValueChange = { it ->
-                rePassword = it
-            },
-            label = {
-                Text(
-                    text = "رمز عبور را دوباره تایپ کنید",
-                    fontSize = 15.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
-            enabled = true,
-            isError = !passwordsMatch,
-            textStyle = TextStyle(
-                textAlign = TextAlign.Start
+                focusedIndicatorColor = IceMist
             ),
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Lock, null
-                )
+            textStyle = TextStyle(textAlign = TextAlign.End)
+        )
+
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = rePassword,
+            onValueChange = {
+                rePassword = it
+                signupViewModel.clearError()
             },
+            label = { Text("رمز عبور را دوباره تایپ کنید", fontSize = 15.sp) },
+            leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = if (rePasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
-                val icon = if (rePasswordVisible) painterResource(R.drawable.ic_visibility)
-                else painterResource(R.drawable.ic_visibility_off)
                 IconButton(onClick = { rePasswordVisible = !rePasswordVisible }) {
+                    val icon = if (rePasswordVisible) painterResource(R.drawable.ic_visibility)
+                    else painterResource(R.drawable.ic_visibility_off)
                     Icon(painter = icon, contentDescription = "Visibility")
                 }
             },
+            isError = !passwordsMatch,
             shape = RoundedCornerShape(10),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = IceMist,
-                focusedIndicatorColor = IceMist,
-                errorIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
+                focusedIndicatorColor = IceMist
+            ),
+            textStyle = TextStyle(textAlign = TextAlign.End)
         )
 
         Button(
             onClick = {
-                progress = true
                 signupViewModel.getDataByPhone(phone)
+                signupViewModel.insertUser(phone, name, password)
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
@@ -260,30 +195,33 @@ fun SignupScreen(
                     password.isNotBlank() && rePassword.isNotBlank() &&
                     passwordsMatch && isValidPhoneNumber(phone),
         ) {
-            Row {
-                if (progress)
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
-                else
-                    Text(text = "ثبت نام", fontSize = 20.sp)
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .height(24.dp)
+                        .width(24.dp)
+                )
+            } else {
+                Text(text = "ثبت نام", fontSize = 20.sp)
             }
         }
 
+        Spacer(Modifier.height(20.dp))
 
         Row(
-            Modifier
-                .fillMaxWidth(),
+            Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "وارد شوید",
-                modifier = Modifier
-                    .clickable {
-                        navController.navigate(NavigationScreen.Login.route) {
-                            popUpTo(NavigationScreen.Signup.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
+                modifier = Modifier.clickable {
+                    navController.navigate(NavigationScreen.Login.route) {
+                        popUpTo(NavigationScreen.Signup.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.width(10.dp))
@@ -294,8 +232,5 @@ fun SignupScreen(
         }
 
         Spacer(Modifier.height(50.dp))
-
     }
-
 }
-
