@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,9 +50,10 @@ class HomeViewModel @Inject constructor(
     private fun observeAllProducts() {
         viewModelScope.launch {
             productRepository.getAllProducts()
-                .catch { e -> updateState { it.copy(errorMessage = e.message) } }
+                .onStart { updateState { it.copy(isLoading = true) } }
+                .catch { e -> updateState { it.copy(errorMessage = e.message, isLoading = false) } }
                 .collect { products ->
-                    updateState { it.copy(products = products) }
+                    updateState { it.copy(products = products, isLoading = false) }
                 }
         }
     }
@@ -82,9 +84,10 @@ class HomeViewModel @Inject constructor(
         selectedCategoryId = categoryId
         viewModelScope.launch {
             productRepository.getProductsByCategorySortedByStar(categoryId)
-                .catch { e -> updateState { it.copy(errorMessage = e.message) } }
+                .onStart { updateState { it.copy(isLoading = true) } }
+                .catch { e -> updateState { it.copy(errorMessage = e.message, isLoading = false) } }
                 .collect { products ->
-                    updateState { it.copy(filteredProducts = products) }
+                    updateState { it.copy(filteredProducts = products, isLoading = false) }
                 }
         }
     }
