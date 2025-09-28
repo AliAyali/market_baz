@@ -1,7 +1,9 @@
 package com.aliayali.market_baz.presentation.screens.splash
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aliayali.market_baz.core.utils.NetworkUtils.hasInternetConnection
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,29 +17,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val repository: UserRepository,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(SplashUiState())
     val uiState: StateFlow<SplashUiState> = _uiState.asStateFlow()
 
+    private val _hasInternet = MutableStateFlow(false)
+    val hasInternet: StateFlow<Boolean> = _hasInternet.asStateFlow()
+
+    private var delayJobStarted = false
+
     init {
-        observeUserPreferences()
-        startDelay()
-    }
-
-    private fun observeUserPreferences() {
-        viewModelScope.launch {
-            userPreferences.phoneNumber.collect { phoneNumber ->
-                phoneNumber?.let {
-                    getUserByPhone(it)
-                }
-            }
-        }
-
         viewModelScope.launch {
             userPreferences.isLoggedIn.stateIn(
                 viewModelScope,
@@ -47,25 +41,48 @@ class SplashViewModel @Inject constructor(
                 updateState { it.copy(isLoggedIn = loggedIn) }
             }
         }
+
+        viewModelScope.launch {
+            userPreferences.phoneNumber.collect { phone ->
+                phone?.let { getUserByPhone(it) }
+            }
+        }
     }
 
-    private fun startDelay() {
+    fun checkInternet(context: Context) {
         viewModelScope.launch {
-            delay(3000)
-            updateState { it.copy(isDelayFinished = true) }
+            val connected = hasInternetConnection(context)
+            _hasInternet.value = connected
         }
+    }
+
+    fun startDelayOnce(millis: Long = 3000L) {
+        if (delayJobStarted) return
+        delayJobStarted = true
+        viewModelScope.launch {
+            updateState { it.copy(isLoading = true, isDelayFinished = false) }
+            delay(millis)
+            updateState { it.copy(isLoading = false, isDelayFinished = true) }
+        }
+    }
+
+    fun retry(context: Context) {
+        checkInternet(context)
+        // reset delay to allow retry button appear after 1s again if needed
+        delayJobStarted = false
+        startDelayOnce(1000L)
     }
 
     private fun getUserByPhone(phone: String) {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true, errorMessage = null) }
-            runCatching {
-                repository.getUserByPhone(phone)
-            }.onSuccess { user ->
-                updateState { it.copy(isLoading = false, user = user) }
-            }.onFailure { e ->
-                updateState { it.copy(isLoading = false, errorMessage = e.message) }
-            }
+            runCatching { repository.getUserByPhone(phone) }
+                .onSuccess { user ->
+                    updateState { it.copy(isLoading = false, user = user) }
+                }
+                .onFailure { e ->
+                    updateState { it.copy(isLoading = false, errorMessage = e.message) }
+                }
         }
     }
 
