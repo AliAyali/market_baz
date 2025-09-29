@@ -1,55 +1,95 @@
 package com.aliayali.market_baz.presentation.screens.splash
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.core.utils.NetworkUtils.hasInternetConnection
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
 import com.aliayali.market_baz.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val repository: UserRepository,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
-    val isLoggedIn = userPreferences.isLoggedIn.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        false
-    )
-    private val _delay = mutableStateOf(false)
-    val delay: State<Boolean> = _delay
+    private val _uiState = MutableStateFlow(SplashUiState())
+    val uiState: StateFlow<SplashUiState> = _uiState.asStateFlow()
 
-    private val _user = mutableStateOf<UserEntity?>(null)
-    val user: State<UserEntity?> = _user
+    private val _hasInternet = MutableStateFlow(false)
+    val hasInternet: StateFlow<Boolean> = _hasInternet.asStateFlow()
 
-    private var _phone = mutableStateOf("")
+    private var delayJobStarted = false
 
     init {
         viewModelScope.launch {
-            userPreferences.phoneNumber.collect { phoneNumber ->
-                phoneNumber?.let {
-                    _phone.value = it
-                    getDataByPhone(it)
-                }
+            userPreferences.isLoggedIn.stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                false
+            ).collect { loggedIn ->
+                updateState { it.copy(isLoggedIn = loggedIn) }
             }
         }
+
         viewModelScope.launch {
-            delay(3000)
-            _delay.value = true
+            userPreferences.phoneNumber.collect { phone ->
+                phone?.let { getUserByPhone(it) }
+            }
         }
     }
 
-    fun getDataByPhone(phone: String) {
+    fun checkInternet(context: Context) {
         viewModelScope.launch {
-            _user.value = repository.getUserByPhone(phone)
+            val connected = hasInternetConnection(context)
+            _hasInternet.value = connected
         }
+    }
+
+    fun startDelayOnce(millis: Long = 3000L) {
+        if (delayJobStarted) return
+        delayJobStarted = true
+        viewModelScope.launch {
+            updateState { it.copy(isLoading = true, isDelayFinished = false) }
+            delay(millis)
+            updateState { it.copy(isLoading = false, isDelayFinished = true) }
+        }
+    }
+
+    fun retry(context: Context) {
+        checkInternet(context)
+        delayJobStarted = false
+        startDelayOnce(1000L)
+    }
+
+    private fun getUserByPhone(phone: String) {
+        viewModelScope.launch {
+            updateState { it.copy(isLoading = true, errorMessage = null) }
+            runCatching { repository.getUserByPhone(phone) }
+                .onSuccess { user ->
+                    updateState { it.copy(isLoading = false, user = user) }
+                }
+                .onFailure { e ->
+                    updateState { it.copy(isLoading = false, errorMessage = e.message) }
+                }
+        }
+    }
+
+    private fun updateState(transform: (SplashUiState) -> SplashUiState) {
+        _uiState.update(transform)
+    }
+
+    fun clearError() {
+        updateState { it.copy(errorMessage = null) }
     }
 }
