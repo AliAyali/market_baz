@@ -68,7 +68,6 @@ class SplashViewModel @Inject constructor(
 
     fun retry(context: Context) {
         checkInternet(context)
-        // reset delay to allow retry button appear after 1s again if needed
         delayJobStarted = false
         startDelayOnce(1000L)
     }

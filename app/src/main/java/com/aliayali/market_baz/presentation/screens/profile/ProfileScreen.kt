@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +52,7 @@ fun ProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
-    val user = profileViewModel.user.value
+    val uiState by profileViewModel.uiState.collectAsState()
     var alertDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -60,6 +62,7 @@ fun ProfileScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,7 +89,7 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        if (user?.image.isNullOrEmpty()) {
+        if (uiState.user?.image.isNullOrEmpty()) {
             Box(
                 modifier = Modifier
                     .size(150.dp)
@@ -103,7 +106,7 @@ fun ProfileScreen(
             }
         } else {
             Image(
-                painter = rememberAsyncImagePainter(model = user.image),
+                painter = rememberAsyncImagePainter(model = uiState.user?.image),
                 contentDescription = null,
                 modifier = Modifier
                     .size(150.dp)
@@ -119,10 +122,7 @@ fun ProfileScreen(
             "اطلاعات شخصی",
             BrightOrange
         ) {
-            navController.navigate(NavigationScreen.PersonalInformation.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.navigate(NavigationScreen.PersonalInformation.route)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -132,10 +132,7 @@ fun ProfileScreen(
             "آدرس",
             Color(0xFF413DFB)
         ) {
-            navController.navigate(NavigationScreen.Address.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.navigate(NavigationScreen.Address.route)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -145,10 +142,7 @@ fun ProfileScreen(
             "سبد خرید",
             Color(0xFF369BFF)
         ) {
-            navController.navigate(NavigationScreen.ShoppingCart.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.navigate(NavigationScreen.ShoppingCart.route)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -158,10 +152,7 @@ fun ProfileScreen(
             "علاقه مندی ها",
             Color(0xFFB33DFB)
         ) {
-            navController.navigate(NavigationScreen.Favorite.route) {
-                popUpTo(NavigationScreen.Profile.route) { inclusive = false }
-                launchSingleTop = true
-            }
+            navController.navigate(NavigationScreen.Favorite.route)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -174,7 +165,7 @@ fun ProfileScreen(
             alertDialog = true
         }
 
-        if (alertDialog)
+        if (alertDialog) {
             AlertDialog(
                 onDismissRequest = { alertDialog = false },
                 confirmButton = {
@@ -186,25 +177,15 @@ fun ProfileScreen(
                         TextButton(
                             onClick = {
                                 alertDialog = false
-                                profileViewModel.loginState(false)
+                                profileViewModel.loginState(false) // استفاده از متد VM
                                 navController.navigate(NavigationScreen.Login.route) {
                                     popUpTo(NavigationScreen.Profile.route) { inclusive = true }
                                     launchSingleTop = true
                                 }
                             }
-                        ) {
-                            Text(
-                                text = "بله"
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-                                alertDialog = false
-                            }
-                        ) {
-                            Text(
-                                text = "خیر"
-                            )
+                        ) { Text("بله") }
+                        TextButton(onClick = { alertDialog = false }) {
+                            Text("خیر")
                         }
                     }
                 },
@@ -232,6 +213,13 @@ fun ProfileScreen(
                 },
                 shape = RoundedCornerShape(10.dp)
             )
+        }
+    }
 
+    if (uiState.errorMessage != null) {
+        LaunchedEffect(uiState.errorMessage) {
+            println("Profile Error: ${uiState.errorMessage}")
+            profileViewModel.clearError()
+        }
     }
 }
