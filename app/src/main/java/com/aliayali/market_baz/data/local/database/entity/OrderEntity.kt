@@ -9,7 +9,7 @@ import com.aliayali.market_baz.data.model.OrderStatus
 data class OrderEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userPhone: String,
-    val productId: Int,
+    val productId: String,
     val quantity: Int = 1,
     val totalPrice: Double,
     val status: String = OrderStatus.PENDING,

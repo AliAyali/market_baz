@@ -108,7 +108,13 @@ fun HomeScreen(
                         products = uiState.products.filter { it.discount > 0 },
                         emptyMessage = "هیچ محصول محبوبی موجود نیست",
                         onProductClick = { product ->
-                            navController.navigate(NavigationScreen.Product.createRoute(product.id))
+                            product.id?.let {
+                                navController.navigate(
+                                    NavigationScreen.Product.createRoute(
+                                        it
+                                    )
+                                )
+                            }
                         }
                     )
                 }
@@ -147,7 +153,13 @@ fun HomeScreen(
                 } else {
                     items(displayedProducts) { product ->
                         ProductItemBig(product) {
-                            navController.navigate(NavigationScreen.Product.createRoute(product.id))
+                            product.id?.let {
+                                navController.navigate(
+                                    NavigationScreen.Product.createRoute(
+                                        it
+                                    )
+                                )
+                            }
                         }
                     }
                 }

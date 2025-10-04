@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,11 +15,11 @@ class ProductsViewModel @Inject constructor(
     productRepository: ProductRepository
 ) : ViewModel() {
 
-    private val _allProducts = mutableStateOf<List<ProductEntity>>(emptyList())
-    val allProducts: State<List<ProductEntity>> = _allProducts
+    private val _allProducts = mutableStateOf<List<Product>>(emptyList())
+    val allProducts: State<List<Product>> = _allProducts
 
-    private val _displayedProducts = mutableStateOf<List<ProductEntity>>(emptyList())
-    val displayedProducts: State<List<ProductEntity>> = _displayedProducts
+    private val _displayedProducts = mutableStateOf<List<Product>>(emptyList())
+    val displayedProducts: State<List<Product>> = _displayedProducts
 
     init {
         viewModelScope.launch {

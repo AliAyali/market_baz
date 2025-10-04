@@ -14,12 +14,12 @@ class RatingRepositoryImpl @Inject constructor(
 
     override suspend fun getRatingByUserAndProduct(
         userPhone: String,
-        productId: Int,
+        productId: String,
     ): RatingEntity? =
         dao.getRatingByUserAndProduct(userPhone, productId)
 
 
-    override suspend fun deleteRatingsByProduct(productId: Int) {
+    override suspend fun deleteRatingsByProduct(productId: String) {
         dao.deleteRatingsByProduct(productId)
     }
 }

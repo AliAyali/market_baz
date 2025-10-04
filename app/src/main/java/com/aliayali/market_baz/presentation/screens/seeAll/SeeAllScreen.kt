@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.components.SeeAllItem
 import com.aliayali.market_baz.ui.theme.IceMist
@@ -31,7 +31,7 @@ import com.aliayali.market_baz.ui.theme.IceMist
 @Composable
 fun SeeAllScreen(
     title: String,
-    products: List<ProductEntity>,
+    products: List<Product>,
     navController: NavController,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -68,7 +68,7 @@ fun SeeAllScreen(
         ) {
             items(products) { product ->
                 SeeAllItem(product) {
-                    navController.navigate(NavigationScreen.Product.createRoute(product.id))
+                    product.id?.let { navController.navigate(NavigationScreen.Product.createRoute(it)) }
                 }
             }
         }

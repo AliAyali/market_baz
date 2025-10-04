@@ -8,7 +8,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase.Companion.SHOPPING
 data class ShoppingCardEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userPhone: String,
-    val productId: Int,
+    val productId: String,
     val imageUrl: String,
     val name: String,
     val price: Int,

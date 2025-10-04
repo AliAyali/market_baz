@@ -13,9 +13,9 @@ interface RatingDao {
     suspend fun insertRating(rating: RatingEntity)
 
     @Query("SELECT * FROM rating_table WHERE userPhone = :userPhone AND productId = :productId LIMIT 1")
-    suspend fun getRatingByUserAndProduct(userPhone: String, productId: Int): RatingEntity?
+    suspend fun getRatingByUserAndProduct(userPhone: String, productId: String): RatingEntity?
 
     @Query("DELETE FROM rating_table WHERE productId = :productId")
-    suspend fun deleteRatingsByProduct(productId: Int)
+    suspend fun deleteRatingsByProduct(productId: String)
 
 }

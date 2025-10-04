@@ -53,6 +53,6 @@ abstract class MyDataBase : RoomDatabase() {
         const val COMMENT_TABLE = "comment_table"
         const val RATING_TABLE = "rating_table"
         const val ORDER_TABLE = "order_table"
-        const val DATABASE_VERSION = 13
+        const val DATABASE_VERSION = 14
     }
 }

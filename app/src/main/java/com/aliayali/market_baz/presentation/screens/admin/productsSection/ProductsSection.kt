@@ -88,7 +88,7 @@ fun ProductsSection(
 
         Button(
             onClick = {
-                navController.navigate(NavigationScreen.AddProduct.createRoute(0)) {
+                navController.navigate(NavigationScreen.AddProduct.createRoute("0")) {
                     popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
                     launchSingleTop = true
                 }
@@ -115,14 +115,18 @@ fun ProductsSection(
                     ProductsItem(
                         product = product,
                         onClick = {
-                            navController.navigate(
-                                NavigationScreen.Product.createRoute(product.id)
-                            )
+                            product.id?.let {
+                                navController.navigate(
+                                    NavigationScreen.Product.createRoute(it)
+                                )
+                            }
                         },
                         onEdit = {
-                            navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
-                                popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
-                                launchSingleTop = true
+                            product.id?.let {
+                                navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
+                                    popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     )

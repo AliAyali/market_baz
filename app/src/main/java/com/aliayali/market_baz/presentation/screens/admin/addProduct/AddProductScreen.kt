@@ -21,8 +21,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -31,8 +33,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.model.ProductCategory
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.navigation.NavigationScreen
 import com.aliayali.market_baz.presentation.screens.admin.components.GalleryImagePickerProduct
 import com.aliayali.market_baz.presentation.screens.admin.components.saveImageToInternalStorage
@@ -57,9 +61,10 @@ import java.io.File
 @Composable
 fun AddProductScreen(
     navController: NavController,
-    productId: Int,
+    productId: String?,
     addProductViewModel: AddProductViewModel = hiltViewModel(),
 ) {
+    val isLoading by addProductViewModel.isLoading.collectAsState()
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
@@ -68,9 +73,9 @@ fun AddProductScreen(
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf(ProductCategory.ALL) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var currentProduct by remember { mutableStateOf<ProductEntity?>(null) }
+    var currentProduct by remember { mutableStateOf<Product?>(null) }
 
-    if (productId != 0 && currentProduct == null) {
+    if (productId != null && currentProduct == null) {
         LaunchedEffect(productId) {
             addProductViewModel.getProductById(productId) { product ->
                 product?.let {
@@ -83,10 +88,8 @@ fun AddProductScreen(
                     selectedCategory =
                         ProductCategory.entries.firstOrNull { cat -> cat.id == it.categoryId }
                             ?: ProductCategory.ALL
-
-                    selectedImageUri = if (it.imageUrl.isNotEmpty()) {
-                        Uri.fromFile(File(it.imageUrl))
-                    } else null
+                    selectedImageUri =
+                        if (it.imageUrl.isNotEmpty()) Uri.fromFile(File(it.imageUrl)) else null
                 }
             }
         }
@@ -131,27 +134,14 @@ fun AddProductScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = {
-                Text(
-                    "نام محصول",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
+            label = { Text("نام محصول", textAlign = TextAlign.End) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
         )
-
         OutlinedTextField(
             value = description,
             onValueChange = { description = it },
-            label = {
-                Text(
-                    "توضیحات",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
+            label = { Text("توضیحات", textAlign = TextAlign.End) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
         )
@@ -163,28 +153,15 @@ fun AddProductScreen(
             OutlinedTextField(
                 value = price,
                 onValueChange = { price = it },
-                label = {
-                    Text(
-                        "قیمت",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
+                label = { Text("قیمت", textAlign = TextAlign.End) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
             )
-
             OutlinedTextField(
                 value = discount,
                 onValueChange = { discount = it },
-                label = {
-                    Text(
-                        "تخفیف (%)",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                },
+                label = { Text("تخفیف (%)", textAlign = TextAlign.End) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
@@ -194,13 +171,7 @@ fun AddProductScreen(
         OutlinedTextField(
             value = inventory,
             onValueChange = { inventory = it },
-            label = {
-                Text(
-                    "موجودی",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            },
+            label = { Text("موجودی", textAlign = TextAlign.End) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
@@ -222,34 +193,28 @@ fun AddProductScreen(
                 }
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 ProductCategory.entries.forEach { category ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selectedCategory = category
-                            expanded = false
-                        },
-                        text = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(
-                                    painter = painterResource(id = category.iconResId),
-                                    contentDescription = category.displayName,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(
-                                    text = category.displayName,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
+                    DropdownMenuItem(onClick = {
+                        selectedCategory = category
+                        expanded = false
+                    }, text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = category.iconResId),
+                                contentDescription = category.displayName,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = category.displayName,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
                         }
-                    )
+                    })
                 }
             }
         }
@@ -259,9 +224,8 @@ fun AddProductScreen(
                 val imagePath = selectedImageUri?.let { uri ->
                     saveImageToInternalStorage(navController.context, uri)
                 }
-
-                val product = ProductEntity(
-                    id = currentProduct?.id ?: 0,
+                val product = Product(
+                    id = currentProduct?.id,
                     name = name,
                     description = description,
                     price = price.toIntOrNull() ?: 0,
@@ -272,79 +236,94 @@ fun AddProductScreen(
                 )
 
                 if (currentProduct == null) {
-                    addProductViewModel.addProduct(product) {
-                        navController.navigate(NavigationScreen.Admin.route) {
-                            popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
+                    addProductViewModel.addProduct(
+                        product,
+                        onSuccess = {
+                            navController.navigate(NavigationScreen.Admin.route) {
+                                popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onError = {}
+                    )
                 } else {
-                    addProductViewModel.updateProduct(product) {
-                        navController.navigate(NavigationScreen.Admin.route) {
-                            popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
+                    addProductViewModel.updateProduct(
+                        product,
+                        onSuccess = {
+                            navController.navigate(NavigationScreen.Admin.route) {
+                                popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onError = {}
+                    )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            enabled = !isLoading
         ) {
-            Text(text = "ذخیره محصول", fontSize = 18.sp)
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(text = "ذخیره محصول", fontSize = 18.sp)
+            }
         }
 
         if (currentProduct != null) {
             var showDialog by remember { mutableStateOf(false) }
-
             Button(
                 onClick = { showDialog = true },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text(text = "حذف محصول", color = MaterialTheme.colorScheme.onError)
-            }
+            ) { Text(text = "حذف محصول", color = MaterialTheme.colorScheme.onError) }
 
             if (showDialog) {
-                androidx.compose.material3.AlertDialog(
+                AlertDialog(
                     onDismissRequest = { showDialog = false },
                     title = {
                         Text(
-                            text = "حذف محصول",
+                            "حذف محصول",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End
                         )
                     },
                     text = {
                         Text(
-                            text = "آیا مطمئن هستید می‌خواهید این محصول را حذف کنید؟",
+                            "آیا مطمئن هستید می‌خواهید این محصول را حذف کنید؟",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End
                         )
                     },
                     confirmButton = {
-                        androidx.compose.material3.TextButton(onClick = {
+                        TextButton(onClick = {
                             currentProduct?.let {
-                                addProductViewModel.deleteProduct(it) {
-                                    navController.navigate(NavigationScreen.Admin.route) {
-                                        popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                                        launchSingleTop = true
-                                    }
-                                }
+                                addProductViewModel.deleteProduct(
+                                    it,
+                                    onSuccess = {
+                                        navController.navigate(NavigationScreen.Admin.route) {
+                                            popUpTo(NavigationScreen.Admin.route) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onError = { }
+                                )
                             }
                             showDialog = false
-                        }) {
-                            Text("بله")
-                        }
+                        }) { Text("بله") }
                     },
                     dismissButton = {
-                        androidx.compose.material3.TextButton(onClick = { showDialog = false }) {
-                            Text("خیر")
-                        }
+                        TextButton(onClick = { showDialog = false }) { Text("خیر") }
                     }
                 )
             }
         }
-
     }
 }

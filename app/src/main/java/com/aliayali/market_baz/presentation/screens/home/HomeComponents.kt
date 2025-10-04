@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.presentation.components.EmptyState
 import com.aliayali.market_baz.presentation.ui.ProductItemSmallFavorite
 import com.aliayali.market_baz.ui.theme.BrightOrange
@@ -139,9 +140,9 @@ fun SectionHeader(
 
 @Composable
 fun ProductListRow(
-    products: List<ProductEntity>,
+    products: List<Product>,
     emptyMessage: String,
-    onProductClick: (ProductEntity) -> Unit,
+    onProductClick: (Product) -> Unit,
 ) {
     if (products.isEmpty()) {
         EmptyState(message = emptyMessage, height = 150.dp)

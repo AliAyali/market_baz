@@ -23,13 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun ProductItemSmallFavorite(
-    data: ProductEntity?,
+    data: Product?,
     onClick: () -> Unit,
 ) {
 

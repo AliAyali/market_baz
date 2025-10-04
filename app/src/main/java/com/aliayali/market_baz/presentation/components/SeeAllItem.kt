@@ -29,13 +29,13 @@ import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.R
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun SeeAllItem(
-    product: ProductEntity,
+    product: Product,
     onClick: () -> Unit,
 ) {
     Card(

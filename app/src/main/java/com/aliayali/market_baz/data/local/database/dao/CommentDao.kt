@@ -18,7 +18,7 @@ interface CommentDao {
     suspend fun deleteComment(comment: CommentEntity)
 
     @Query("SELECT * FROM comment_table WHERE productId = :productId ORDER BY id DESC")
-    fun getCommentsByProductId(productId: Int): Flow<List<CommentEntity>>
+    fun getCommentsByProductId(productId: String): Flow<List<CommentEntity>>
 
     @Query("SELECT COUNT(*) FROM comment_table")
     suspend fun getCommentsCount(): Int

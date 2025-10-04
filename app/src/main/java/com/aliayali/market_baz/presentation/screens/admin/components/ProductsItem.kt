@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.aliayali.market_baz.core.utils.calculateDiscountedPrice
 import com.aliayali.market_baz.core.utils.formatPrice
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.IceMist
@@ -45,7 +45,7 @@ import com.aliayali.market_baz.ui.theme.White
 
 @Composable
 fun ProductsItem(
-    product: ProductEntity,
+    product: Product,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onEdit: () -> Unit,

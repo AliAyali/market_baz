@@ -1,6 +1,6 @@
 package com.aliayali.market_baz.data.remote.firebase
 
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.domain.repository.ProductRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -12,47 +12,58 @@ import javax.inject.Inject
 class FirebaseProductRepositoryImpl @Inject constructor(
     firestore: FirebaseFirestore,
 ) : ProductRepository {
+
     private val productsCollection = firestore.collection("products")
 
-    override suspend fun insertProducts(products: ProductEntity) {
-        val id = products.id.toString()
-        productsCollection.document(id).set(products).await()
+    override suspend fun insertProducts(product: Product) {
+        val docRef = productsCollection.add(product).await()
+        val generatedId = docRef.id
+        docRef.update("id", generatedId).await()
     }
 
-    override suspend fun getProductsWithDiscount(): List<ProductEntity> {
+    override suspend fun getProductsWithDiscount(): List<Product> {
         val snapshot = productsCollection
             .whereGreaterThan("discount", 0)
             .get()
             .await()
-        return snapshot.toObjects(ProductEntity::class.java)
-    }
-
-    override fun getProductsByCategorySortedByStar(categoryId: Int): Flow<List<ProductEntity>> =
-        flow {
-            val snapshot = productsCollection
-                .whereEqualTo("categoryId", categoryId)
-                .orderBy("star", Query.Direction.DESCENDING)
-                .get()
-                .await()
-            emit(snapshot.toObjects(ProductEntity::class.java))
+        return snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Product::class.java)?.copy(id = doc.id)
         }
-
-    override suspend fun getProductById(productId: Int): ProductEntity? {
-        val doc = productsCollection.document(productId.toString()).get().await()
-        return doc.toObject(ProductEntity::class.java)
     }
 
-    override fun getAllProducts(): Flow<List<ProductEntity>> = flow {
+    override fun getProductsByCategorySortedByStar(categoryId: Int): Flow<List<Product>> = flow {
+        val snapshot = productsCollection
+            .whereEqualTo("categoryId", categoryId)
+            .orderBy("star", Query.Direction.DESCENDING)
+            .get()
+            .await()
+        emit(snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Product::class.java)?.copy(id = doc.id)
+        })
+    }
+
+    override suspend fun getProductById(productId: String): Product? {
+        val doc = productsCollection.document(productId).get().await()
+        return doc.toObject(Product::class.java)?.copy(id = doc.id)
+    }
+
+    override fun getAllProducts(): Flow<List<Product>> = flow {
         val snapshot = productsCollection.get().await()
-        emit(snapshot.toObjects(ProductEntity::class.java))
+        emit(snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Product::class.java)?.copy(id = doc.id)
+        })
     }
 
-    override suspend fun updateProduct(product: ProductEntity) {
-        productsCollection.document(product.id.toString()).set(product).await()
+    override suspend fun updateProduct(product: Product) {
+        product.id?.let {
+            productsCollection.document(it).set(product).await()
+        }
     }
 
-    override suspend fun deleteProduct(product: ProductEntity) {
-        productsCollection.document(product.id.toString()).delete().await()
+    override suspend fun deleteProduct(product: Product) {
+        product.id?.let {
+            productsCollection.document(it).delete().await()
+        }
     }
 
     override suspend fun getProductsCount(): Int {

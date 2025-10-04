@@ -89,7 +89,7 @@ fun SetupNavigation(
         composable(
             route = NavigationScreen.Product.route + "/{productId}"
         ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
+            val productId = backStackEntry.arguments?.getString("productId")
             ProductScreen(
                 navController,
                 productId = productId
@@ -138,12 +138,13 @@ fun SetupNavigation(
         composable(
             route = NavigationScreen.AddProduct.route + "/{productId}"
         ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
+            val productId = backStackEntry.arguments?.getString("productId")
             AddProductScreen(
                 navController,
                 productId
             )
         }
+
         composable(
             route = NavigationScreen.User.route + "/{userPhone}"
         ) { backStackEntry ->

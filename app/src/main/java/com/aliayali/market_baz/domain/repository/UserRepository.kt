@@ -1,6 +1,5 @@
 package com.aliayali.market_baz.domain.repository
 
-import androidx.room.Query
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 
 interface UserRepository {

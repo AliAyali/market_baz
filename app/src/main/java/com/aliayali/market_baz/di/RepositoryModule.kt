@@ -5,7 +5,6 @@ import com.aliayali.market_baz.data.repository.AddressRepositoryImpl
 import com.aliayali.market_baz.data.repository.CommentRepositoryImpl
 import com.aliayali.market_baz.data.repository.FavoriteRepositoryImpl
 import com.aliayali.market_baz.data.repository.OrderRepositoryImpl
-import com.aliayali.market_baz.data.repository.ProductRepositoryImpl
 import com.aliayali.market_baz.data.repository.RatingRepositoryImpl
 import com.aliayali.market_baz.data.repository.ShoppingCardRepositoryImpl
 import com.aliayali.market_baz.data.repository.UserRepositoryImpl
@@ -62,16 +61,14 @@ abstract class RepositoryModule {
         orderRepositoryImpl: OrderRepositoryImpl,
     ): OrderRepository
 
-    @Binds
+    /*@Binds
     @Named("roomRepo")
     abstract fun bindProductRepository(
         productRepositoryImpl: ProductRepositoryImpl,
-    ): ProductRepository
+    ): ProductRepository*/
 
     @Binds
-    @Named("firebaseRepo")
-    abstract fun bindFirebaseProductRepository(
+    abstract fun bindProductRepository(
         firebaseProductRepositoryImpl: FirebaseProductRepositoryImpl,
     ): ProductRepository
-
 }

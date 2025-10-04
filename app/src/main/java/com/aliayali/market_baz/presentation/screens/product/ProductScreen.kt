@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -65,33 +68,29 @@ import com.aliayali.market_baz.presentation.ui.QuantitySelector
 import com.aliayali.market_baz.ui.theme.BrightOrange
 import com.aliayali.market_baz.ui.theme.CoolSlate
 import com.aliayali.market_baz.ui.theme.IceMist
-import com.aliayali.market_baz.ui.theme.MidnightBlue
 import com.aliayali.market_baz.ui.theme.White
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun ProductScreen(
     navController: NavController,
-    productId: Int?,
+    productId: String?,
     productViewModel: ProductViewModel = hiltViewModel(),
 ) {
+    val isLoading by productViewModel.isLoading.collectAsState()
     val product by productViewModel.product
     val favorite by productViewModel.isFavorite
     val user = productViewModel.user.value
 
     LaunchedEffect(productId) {
-        productViewModel.getProductById(productId)
-    }
-    LaunchedEffect(product) {
-        product?.let {
-            productViewModel.checkIfFavorite(it.id)
-        }
-    }
-    LaunchedEffect(productId) {
         productId?.let {
             productViewModel.getProductById(it)
             productViewModel.loadComments(it)
         }
+    }
+
+    LaunchedEffect(product) {
+        product?.id?.let { productViewModel.checkIfFavorite(it) }
     }
 
     var quantity by remember { mutableIntStateOf(1) }
@@ -106,269 +105,242 @@ fun ProductScreen(
     val comments by productViewModel.comments.collectAsState(initial = emptyList())
     var rating by remember { mutableIntStateOf(0) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (favorite)
-                    Icon(
-                        Icons.Outlined.Favorite,
-                        null,
-                        Modifier
-                            .clickable { productViewModel.toggleFavorite(product) }
-                            .background(IceMist, CircleShape)
-                            .padding(9.dp),
-                        tint = BrightOrange
-                    )
-                else
-                    Icon(
-                        painterResource(R.drawable.outline_favorite),
-                        null,
-                        Modifier
-                            .clickable { productViewModel.toggleFavorite(product) }
-                            .background(IceMist, CircleShape)
-                            .padding(9.dp),
-                    )
-
+    if (!isLoading) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "جزئیات",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(Modifier.width(20.dp))
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    if (favorite)
+                        Icon(
+                            Icons.Outlined.Favorite,
+                            null,
+                            Modifier
+                                .clickable { productViewModel.toggleFavorite(product) }
+                                .background(IceMist, CircleShape)
+                                .padding(9.dp),
+                            tint = BrightOrange
+                        )
+                    else
+                        Icon(
+                            painterResource(R.drawable.outline_favorite),
+                            null,
+                            Modifier
+                                .clickable { productViewModel.toggleFavorite(product) }
+                                .background(IceMist, CircleShape)
+                                .padding(9.dp),
+                        )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "جزئیات", style = MaterialTheme.typography.titleLarge)
+                        Spacer(Modifier.width(20.dp))
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            null,
+                            modifier = Modifier
+                                .background(IceMist, CircleShape)
+                                .padding(9.dp)
+                                .clickable {
+                                    navController.navigate(NavigationScreen.Home.route) {
+                                        popUpTo(NavigationScreen.Home.route) { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+
+            item {
+                product?.let {
+                    Image(
+                        rememberAsyncImagePainter(model = it.imageUrl),
                         null,
                         modifier = Modifier
-                            .background(IceMist, CircleShape)
-                            .padding(9.dp)
-                            .clickable {
-                                navController.navigate(NavigationScreen.Home.route) {
-                                    popUpTo(NavigationScreen.Home.route) { inclusive = false }
-                                    launchSingleTop = true
-                                }
-                            }
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(20.dp)),
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
-        }
 
-        item {
-            product?.let {
-                Image(
-                    rememberAsyncImagePainter(model = product!!.imageUrl),
-                    null,
+            item {
+                Text(
+                    text = product?.name ?: "",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = product?.description ?: "",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    color = CoolSlate
+                )
+            }
+
+            item {
+                LineBox()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (clampedDiscount > 0) {
+                        Text(text = formatPrice(discountedTotal), fontSize = 18.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = formatPrice(totalPrice),
+                            textDecoration = TextDecoration.LineThrough,
+                            color = CoolSlate
+                        )
+                    } else {
+                        Text(text = formatPrice(totalPrice), color = Color.Black)
+                    }
+                    if (clampedDiscount > 0)
+                        Text(
+                            text = "$clampedDiscount%",
+                            color = White,
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .background(BrightOrange, CircleShape)
+                                .padding(vertical = 3.dp, horizontal = 5.dp)
+                        )
+                    Text(
+                        text = ":قیمت",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+
+            item {
+                LineBox()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(text = product?.inventory.toString())
+                    Text(
+                        text = " :موجودی",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+
+            item {
+                LineBox()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    QuantitySelector(
+                        quantity = quantity,
+                        onQuantityChange = { quantity = it },
+                        maxQuantity = product?.inventory ?: Int.MAX_VALUE
+                    )
+                    Text(text = ":تعداد")
+                }
+            }
+
+            item {
+                Button(
+                    onClick = { alertDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(20.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-
-
-        item {
-            Text(
-                text = product?.name ?: "name",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = product?.description ?: "description",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End,
-                color = CoolSlate
-            )
-        }
-
-        item {
-            LineBox()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (clampedDiscount > 0) {
-                    Text(text = formatPrice(discountedTotal), fontSize = 18.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = formatPrice(totalPrice),
-                        textDecoration = TextDecoration.LineThrough,
-                        color = CoolSlate
-                    )
-                } else {
-                    Text(text = formatPrice(totalPrice), color = Color.Black)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(text = "افزودن به سبدخرید", fontSize = 20.sp)
                 }
-                if (clampedDiscount > 0)
-                    Text(
-                        text = "$clampedDiscount%",
-                        color = White,
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .background(BrightOrange, CircleShape)
-                            .padding(vertical = 3.dp, horizontal = 5.dp)
-                    )
-                Text(
-                    text = ":قیمت",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
             }
-        }
 
-        item {
-            LineBox()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(text = product?.inventory.toString())
+            item {
                 Text(
-                    text = " :موجودی",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-            }
-        }
-
-        item {
-            LineBox()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Icon(Icons.Outlined.Star, null, tint = BrightOrange)
-                Spacer(Modifier.width(5.dp))
-                Text(
-                    text = product?.star?.let { String.format("%.1f", it) } ?: "0.0"
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "امتیاز بده",
+                    text = ":نظر کاربران",
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
-                        .background(
-                            BrightOrange, RoundedCornerShape(15.dp)
-                        )
-                        .padding(3.dp)
-                        .clickable {
-                            alertDialogStar = true
-                        },
-                    color = White
-                )
-
-                Text(
-                    text = ":امتیاز",
-                    modifier = Modifier.fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
                     textAlign = TextAlign.End
                 )
             }
-        }
 
-        item {
-            LineBox()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                QuantitySelector(
-                    quantity = quantity,
-                    onQuantityChange = { quantity = it },
-                    maxQuantity = product?.inventory ?: Int.MAX_VALUE
-                )
-                Text(text = ":تعداد")
-            }
-        }
-
-        item {
-            Button(
-                onClick = { alertDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(text = "افزودن به سبدخرید", fontSize = 20.sp)
-            }
-        }
-
-
-        item {
-            Text(
-                text = ":نظر کاربران",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                textAlign = TextAlign.End
-            )
-        }
-
-        item {
-            OutlinedTextField(
-                value = commentText,
-                onValueChange = { commentText = it },
-                label = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End,
-                        text = "نظر خود را بنویسید"
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                maxLines = 5,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right)
-            )
-            Spacer(Modifier.height(5.dp))
-            Button(
-                onClick = {
-                    productViewModel.insertComment(
-                        CommentEntity(
-                            id = 0,
-                            productId = productId ?: 0,
-                            username = user?.name ?: "",
-                            userPhone = user?.phone ?: "",
-                            detail = commentText
+            item {
+                OutlinedTextField(
+                    value = commentText,
+                    onValueChange = { commentText = it },
+                    label = {
+                        Text(
+                            text = "نظر خود را بنویسید",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
                         )
-                    )
-                    commentText = ""
-                },
-                enabled = !commentText.isBlank(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CoolSlate
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    maxLines = 5,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right)
                 )
-            ) {
-                Text(
-                    text = "ارسال"
-                )
+                Spacer(Modifier.height(5.dp))
+                Button(
+                    onClick = {
+                        product?.id?.let {
+                            productViewModel.insertComment(
+                                CommentEntity(
+                                    id = 0,
+                                    productId = it,
+                                    username = user?.name ?: "",
+                                    userPhone = user?.phone ?: "",
+                                    detail = commentText
+                                )
+                            )
+                        }
+                        commentText = ""
+                    },
+                    enabled = !commentText.isBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = CoolSlate)
+                ) {
+                    Text(text = "ارسال")
+                }
+            }
+
+            items(comments) { comment ->
+                CommentItem(comment, user?.phone ?: "", user?.isAdmin ?: false) {
+                    productViewModel.deleteComment(comment)
+                }
             }
         }
+    }
 
-        items(comments) { comment ->
-            CommentItem(comment, user?.phone ?: "", user?.isAdmin ?: false) {
-                productViewModel.deleteComment(comment)
-            }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
+            )
         }
     }
 
@@ -390,12 +362,8 @@ fun ProductScreen(
                             )
                             alertDialog = false
                         }
-                    ) {
-                        Text(text = "بله")
-                    }
-                    TextButton(onClick = { alertDialog = false }) {
-                        Text(text = "خیر")
-                    }
+                    ) { Text(text = "بله") }
+                    TextButton(onClick = { alertDialog = false }) { Text(text = "خیر") }
                 }
             },
             title = {
@@ -410,14 +378,6 @@ fun ProductScreen(
                     text = "به سبد خرید اضافه شود؟",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
-                )
-            },
-            icon = {
-                Icon(
-                    painterResource(R.drawable.shopping),
-                    null,
-                    tint = MidnightBlue,
-                    modifier = Modifier.size(20.dp)
                 )
             },
             shape = RoundedCornerShape(10.dp)
@@ -475,5 +435,4 @@ fun ProductScreen(
             },
             shape = RoundedCornerShape(10.dp)
         )
-
 }
