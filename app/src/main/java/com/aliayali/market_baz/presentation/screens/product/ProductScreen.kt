@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -234,6 +233,42 @@ fun ProductScreen(
                         text = " :موجودی",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End
+                    )
+                }
+            }
+
+            item {
+                LineBox()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Star,
+                            null,
+                            tint = BrightOrange
+                        )
+                        Text(text = String.format("%.1f", product?.star ?: 0.0))
+                        Button(
+                            onClick = {
+                                alertDialogStar = true
+                            },
+                            Modifier.size(height = 35.dp, width = 100.dp)
+                        ) {
+                            Text(
+                                text = "امتیاز بده",
+                            )
+                        }
+                    }
+                    Text(
+                        text = " :امتیاز",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        fontSize = 10.sp
                     )
                 }
             }

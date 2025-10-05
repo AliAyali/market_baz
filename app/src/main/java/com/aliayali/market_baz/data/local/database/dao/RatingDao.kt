@@ -9,7 +9,7 @@ import com.aliayali.market_baz.data.local.database.entity.RatingEntity
 @Dao
 interface RatingDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRating(rating: RatingEntity)
 
     @Query("SELECT * FROM rating_table WHERE userPhone = :userPhone AND productId = :productId LIMIT 1")

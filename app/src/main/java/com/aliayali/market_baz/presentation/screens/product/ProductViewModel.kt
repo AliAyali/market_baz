@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +36,8 @@ class ProductViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val ratingRepository: RatingRepository,
 ) : ViewModel() {
-
+    private val _toastMessage = MutableStateFlow<String?>(null)
+    val toastMessage: StateFlow<String?> = _toastMessage
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
 
@@ -160,13 +162,19 @@ class ProductViewModel @Inject constructor(
         }
     }
 
+    private var isRatingInProgress = false
+
     fun addRating(product: Product?, newRating: Int) {
-        if (product == null || _user.value == null) return
+        if (product == null || _user.value == null || isRatingInProgress) return
 
         val userPhone = _user.value!!.phone
+
         viewModelScope.launch(Dispatchers.IO) {
-            val existingRating =
-                product.id?.let { ratingRepository.getRatingByUserAndProduct(userPhone, it) }
+            isRatingInProgress = true
+
+            val existingRating = product.id?.let {
+                ratingRepository.getRatingByUserAndProduct(userPhone, it)
+            }
 
             if (existingRating == null) {
                 val oldStar = product.star
@@ -179,16 +187,29 @@ class ProductViewModel @Inject constructor(
                     star = newStar,
                     numberOfComments = newNumberOfComments
                 )
+
                 productRepository.updateProduct(updatedProduct)
+
                 product.id?.let {
                     ratingRepository.insertRating(
-                        RatingEntity(productId = it, userPhone = userPhone, rating = newRating)
+                        RatingEntity(
+                            productId = it,
+                            userPhone = userPhone,
+                            rating = newRating
+                        )
                     )
                 }
+                withContext(Dispatchers.Main) {
+                    getProductById(product.id)
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    _toastMessage.value = "شما قبلاً به این محصول امتیاز داده‌اید ⭐"
+                }
             }
-            getProductById(product.id)
+
+            isRatingInProgress = false
         }
     }
-
 
 }
