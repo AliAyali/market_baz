@@ -16,7 +16,7 @@ class CommentRepositoryImpl @Inject constructor(
         dao.deleteComment(comment)
     }
 
-    override fun getCommentsByProductId(productId: Int) =
+    override fun getCommentsByProductId(productId: String) =
         dao.getCommentsByProductId(productId)
 
     override suspend fun getCommentsCount(): Int = dao.getCommentsCount()

@@ -16,7 +16,7 @@ class FavoriteRepositoryImpl @Inject constructor(
         dao.insertFavorite(favorite)
     }
 
-    override suspend fun deleteFavoriteByProductId(id: Int, userPhone: String) {
+    override suspend fun deleteFavoriteByProductId(id: String, userPhone: String) {
         dao.deleteFavoriteByProductId(id, userPhone)
     }
 
@@ -29,7 +29,7 @@ class FavoriteRepositoryImpl @Inject constructor(
             .map { list -> list.filter { it.userPhone == userPhone } }
     }
 
-    override suspend fun isFavorite(id: Int, userPhone: String): Boolean {
+    override suspend fun isFavorite(id: String, userPhone: String): Boolean {
         val list = dao.getAllFavorites(userPhone).first()
         return list.any { it.productId == id && it.userPhone == userPhone }
     }

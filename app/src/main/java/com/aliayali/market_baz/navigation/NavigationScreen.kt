@@ -9,7 +9,7 @@ sealed class NavigationScreen(val route: String) {
     object Home : NavigationScreen("home")
     object Admin : NavigationScreen("admin")
     object Product : NavigationScreen("product") {
-        fun createRoute(productId: Int) = "$route/$productId"
+        fun createRoute(productId: String) = "$route/$productId"
     }
 
     object Profile : NavigationScreen("profile")
@@ -22,7 +22,7 @@ sealed class NavigationScreen(val route: String) {
     }
 
     object AddProduct : NavigationScreen("addProduct") {
-        fun createRoute(productId: Int) = "$route/$productId"
+        fun createRoute(productId: String) = "$route/$productId"
     }
 
     object User : NavigationScreen("user") {

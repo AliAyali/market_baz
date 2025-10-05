@@ -17,7 +17,7 @@ interface FavoriteDao {
     suspend fun deleteFavorite(favorite: FavoriteEntity)
 
     @Query("DELETE FROM favorites_table WHERE productId = :id AND userPhone = :userPhone")
-    suspend fun deleteFavoriteByProductId(id: Int, userPhone: String)
+    suspend fun deleteFavoriteByProductId(id: String, userPhone: String)
 
     @Query("SELECT * FROM favorites_table WHERE userPhone = :userPhone")
     fun getAllFavorites(userPhone: String): Flow<List<FavoriteEntity>>

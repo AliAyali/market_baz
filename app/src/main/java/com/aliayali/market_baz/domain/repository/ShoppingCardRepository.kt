@@ -8,5 +8,5 @@ interface ShoppingCardRepository {
     suspend fun updateItem(item: ShoppingCardEntity)
     suspend fun deleteItem(item: ShoppingCardEntity)
     fun getAllItems(userPhone: String): Flow<List<ShoppingCardEntity>>
-    suspend fun getItemByProductId(productId: Int, userPhone: String): ShoppingCardEntity?
+    suspend fun getItemByProductId(productId: String, userPhone: String): ShoppingCardEntity?
 }

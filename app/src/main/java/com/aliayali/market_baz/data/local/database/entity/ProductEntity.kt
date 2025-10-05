@@ -16,4 +16,6 @@ data class ProductEntity(
     val categoryId: Int,
     val inventory: Int = 0,
     val numberOfComments: Int = 0,
-)
+) {
+    constructor() : this(0, "", "", "", 0, 0, 0.0, 0, 0, 0)
+}

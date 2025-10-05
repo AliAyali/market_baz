@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliayali.market_baz.data.local.database.entity.CommentEntity
 import com.aliayali.market_baz.data.local.database.entity.FavoriteEntity
-import com.aliayali.market_baz.data.local.database.entity.ProductEntity
 import com.aliayali.market_baz.data.local.database.entity.RatingEntity
 import com.aliayali.market_baz.data.local.database.entity.ShoppingCardEntity
 import com.aliayali.market_baz.data.local.database.entity.UserEntity
 import com.aliayali.market_baz.data.local.datastore.UserPreferences
+import com.aliayali.market_baz.domain.model.Product
 import com.aliayali.market_baz.domain.repository.CommentRepository
 import com.aliayali.market_baz.domain.repository.FavoriteRepository
 import com.aliayali.market_baz.domain.repository.ProductRepository
@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +36,8 @@ class ProductViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val ratingRepository: RatingRepository,
 ) : ViewModel() {
-
+    private val _toastMessage = MutableStateFlow<String?>(null)
+    val toastMessage: StateFlow<String?> = _toastMessage
     private val _user = mutableStateOf<UserEntity?>(null)
     val user: State<UserEntity?> = _user
 
@@ -44,11 +46,13 @@ class ProductViewModel @Inject constructor(
 
     private var _phone = mutableStateOf("")
 
-    private val _product = mutableStateOf<ProductEntity?>(null)
-    val product: State<ProductEntity?> = _product
+    private val _product = mutableStateOf<Product?>(null)
+    val product: State<Product?> = _product
 
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> = _isFavorite
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
         viewModelScope.launch {
@@ -72,59 +76,63 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    fun getProductById(id: Int?) {
+    fun getProductById(id: String?) {
         viewModelScope.launch {
-            _product.value = productRepository.getProductById(id ?: 0)
+            _isLoading.value = true
+            _product.value = id?.let { productRepository.getProductById(it) }
+            _isLoading.value = false
         }
     }
 
-    fun insertShoppingCard(product: ProductEntity?, price: Int, number: Int) {
+    fun insertShoppingCard(product: Product?, price: Int, number: Int) {
         viewModelScope.launch {
             product?.let { p ->
-                val existingItem = shoppingCardRepository.getItemByProductId(p.id, _phone.value)
+                val existingItem = p.id?.let { shoppingCardRepository.getItemByProductId(it, _phone.value) }
                 if (existingItem != null) {
                     val newNumber = existingItem.number + number
                     val finalNumber = if (newNumber > p.inventory) p.inventory else newNumber
                     shoppingCardRepository.updateItem(existingItem.copy(number = finalNumber))
                 } else {
                     val finalNumber = if (number > p.inventory) p.inventory else number
-                    shoppingCardRepository.insertItem(
-                        ShoppingCardEntity(
-                            productId = p.id,
-                            imageUrl = p.imageUrl,
-                            name = p.name,
-                            price = price,
-                            number = finalNumber,
-                            userPhone = _phone.value
+                    p.id?.let {
+                        shoppingCardRepository.insertItem(
+                            ShoppingCardEntity(
+                                productId = it,
+                                imageUrl = p.imageUrl,
+                                name = p.name,
+                                price = price,
+                                number = finalNumber,
+                                userPhone = _phone.value
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
     }
 
-    fun checkIfFavorite(productId: Int) {
+    fun checkIfFavorite(productId: String) {
         viewModelScope.launch {
             _isFavorite.value = favoriteRepository.isFavorite(productId, _phone.value)
         }
     }
 
-    fun toggleFavorite(product: ProductEntity?) {
+    fun toggleFavorite(product: Product?) {
         if (product == null) return
         viewModelScope.launch {
-            val isFav = favoriteRepository.isFavorite(product.id, _phone.value)
-            if (isFav) {
+            val isFav = product.id?.let { favoriteRepository.isFavorite(it, _phone.value) }
+            if (isFav == true) {
                 favoriteRepository.deleteFavoriteByProductId(product.id, _phone.value)
             } else {
                 favoriteRepository.insertFavorite(product.toFavoriteEntity(_phone.value))
             }
-            _isFavorite.value = !isFav
+            isFav?.let { _isFavorite.value = !it }
         }
     }
 
-    fun ProductEntity.toFavoriteEntity(userPhone: String): FavoriteEntity {
+    fun Product.toFavoriteEntity(userPhone: String): FavoriteEntity {
         return FavoriteEntity(
-            productId = this.id,
+            productId = this.id.toString(),
             title = this.name,
             imageUrl = this.imageUrl,
             price = this.price,
@@ -139,7 +147,7 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    fun loadComments(productId: Int) {
+    fun loadComments(productId: String) {
         viewModelScope.launch {
             commentRepository.getCommentsByProductId(productId).collect { list ->
                 _comments.value = list
@@ -154,12 +162,19 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    fun addRating(product: ProductEntity?, newRating: Int) {
-        if (product == null || _user.value == null) return
+    private var isRatingInProgress = false
+
+    fun addRating(product: Product?, newRating: Int) {
+        if (product == null || _user.value == null || isRatingInProgress) return
 
         val userPhone = _user.value!!.phone
+
         viewModelScope.launch(Dispatchers.IO) {
-            val existingRating = ratingRepository.getRatingByUserAndProduct(userPhone, product.id)
+            isRatingInProgress = true
+
+            val existingRating = product.id?.let {
+                ratingRepository.getRatingByUserAndProduct(userPhone, it)
+            }
 
             if (existingRating == null) {
                 val oldStar = product.star
@@ -172,14 +187,29 @@ class ProductViewModel @Inject constructor(
                     star = newStar,
                     numberOfComments = newNumberOfComments
                 )
+
                 productRepository.updateProduct(updatedProduct)
-                ratingRepository.insertRating(
-                    RatingEntity(productId = product.id, userPhone = userPhone, rating = newRating)
-                )
+
+                product.id?.let {
+                    ratingRepository.insertRating(
+                        RatingEntity(
+                            productId = it,
+                            userPhone = userPhone,
+                            rating = newRating
+                        )
+                    )
+                }
+                withContext(Dispatchers.Main) {
+                    getProductById(product.id)
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    _toastMessage.value = "شما قبلاً به این محصول امتیاز داده‌اید ⭐"
+                }
             }
-            getProductById(product.id)
+
+            isRatingInProgress = false
         }
     }
-
 
 }
