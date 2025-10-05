@@ -15,22 +15,26 @@ class AddProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
 ) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _isLoadingAdd = MutableStateFlow(false)
+    val isLoadingAdd: StateFlow<Boolean> = _isLoadingAdd
+    private val _isLoadingDelete = MutableStateFlow(false)
+    val isLoadingDelete: StateFlow<Boolean> = _isLoadingDelete
+    private val _isLoadingScreen = MutableStateFlow(false)
+    val isLoadingScreen: StateFlow<Boolean> = _isLoadingScreen
 
     fun addProduct(
         product: Product,
         onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
     ) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _isLoadingAdd.value = true
                 productRepository.insertProducts(product)
-                _isLoading.value = false
+                _isLoadingAdd.value = false
                 onSuccess()
             } catch (e: Exception) {
-                _isLoading.value = false
+                _isLoadingAdd.value = false
                 onError(e.message ?: "خطا در افزودن محصول")
             }
         }
@@ -39,10 +43,13 @@ class AddProductViewModel @Inject constructor(
     fun updateProduct(product: Product, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                _isLoadingAdd.value = true
                 if (product.id.isNullOrEmpty()) throw Exception("Product ID نامعتبر است")
                 productRepository.updateProduct(product)
+                _isLoadingAdd.value = false
                 onSuccess()
             } catch (e: Exception) {
+                _isLoadingAdd.value = false
                 onError(e.message ?: "خطا در بروزرسانی محصول")
             }
         }
@@ -51,10 +58,13 @@ class AddProductViewModel @Inject constructor(
     fun deleteProduct(product: Product, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                _isLoadingDelete.value = true
                 if (product.id.isNullOrEmpty()) throw Exception("Product ID نامعتبر است")
                 productRepository.deleteProduct(product)
+                _isLoadingDelete.value = false
                 onSuccess()
             } catch (e: Exception) {
+                _isLoadingDelete.value = false
                 onError(e.message ?: "خطا در حذف محصول")
             }
         }
@@ -64,9 +74,12 @@ class AddProductViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if (id.isEmpty()) throw Exception("Product ID نامعتبر است")
+                _isLoadingScreen.value = true
                 val product = productRepository.getProductById(id)
+                _isLoadingScreen.value = false
                 onResult(product)
             } catch (e: Exception) {
+                _isLoadingScreen.value = false
                 onResult(null)
             }
         }

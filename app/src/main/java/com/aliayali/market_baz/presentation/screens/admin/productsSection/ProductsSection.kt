@@ -15,11 +15,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,7 @@ fun ProductsSection(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val products = productsViewModel.displayedProducts.value
+    val isLoading = productsViewModel.isLoading.collectAsState()
 
     Column(
         Modifier
@@ -104,34 +107,49 @@ fun ProductsSection(
 
         Spacer(Modifier.height(10.dp))
 
-        if (products.isEmpty()) {
-            EmptyState(
-                message = "هیچ محصولی موجود نیست",
-                height = 200.dp
-            )
-        } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(products) { product ->
-                    ProductsItem(
-                        product = product,
-                        onClick = {
-                            product.id?.let {
-                                navController.navigate(
-                                    NavigationScreen.Product.createRoute(it)
-                                )
-                            }
-                        },
-                        onEdit = {
-                            product.id?.let {
-                                navController.navigate(NavigationScreen.AddProduct.createRoute(product.id)) {
-                                    popUpTo(NavigationScreen.AddProduct.route) { inclusive = false }
-                                    launchSingleTop = true
+        if (isLoading.value)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+            }
+        if (!isLoading.value)
+            if (products.isEmpty()) {
+                EmptyState(
+                    message = "هیچ محصولی موجود نیست",
+                    height = 200.dp
+                )
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(products) { product ->
+                        ProductsItem(
+                            product = product,
+                            onClick = {
+                                product.id?.let {
+                                    navController.navigate(
+                                        NavigationScreen.Product.createRoute(it)
+                                    )
+                                }
+                            },
+                            onEdit = {
+                                product.id?.let {
+                                    navController.navigate(
+                                        NavigationScreen.AddProduct.createRoute(
+                                            product.id
+                                        )
+                                    ) {
+                                        popUpTo(NavigationScreen.AddProduct.route) {
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
-        }
     }
 }

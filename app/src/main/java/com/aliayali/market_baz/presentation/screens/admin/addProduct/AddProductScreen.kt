@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -64,7 +65,9 @@ fun AddProductScreen(
     productId: String?,
     addProductViewModel: AddProductViewModel = hiltViewModel(),
 ) {
-    val isLoading by addProductViewModel.isLoading.collectAsState()
+    val isLoadingAdd by addProductViewModel.isLoadingAdd.collectAsState()
+    val isLoadingDelete by addProductViewModel.isLoadingDelete.collectAsState()
+    val isLoadingScreen by addProductViewModel.isLoadingScreen.collectAsState()
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
@@ -95,235 +98,260 @@ fun AddProductScreen(
         }
     }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    if (isLoadingScreen)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = null,
-                modifier = Modifier
-                    .background(IceMist, CircleShape)
-                    .padding(9.dp)
-                    .clickable {
-                        navController.navigate(NavigationScreen.Admin.route) {
-                            popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
-            )
-            Text(
-                text = if (currentProduct == null) "افزودن محصول جدید" else "ویرایش محصول",
-                style = MaterialTheme.typography.titleLarge
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
             )
         }
 
-        GalleryImagePickerProduct(
-            selectedImageUri = selectedImageUri,
-            onImageSelected = { selectedImageUri = it }
-        )
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("نام محصول", textAlign = TextAlign.End) },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
-        )
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("توضیحات", textAlign = TextAlign.End) },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    if (!isLoadingScreen)
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(
-                value = price,
-                onValueChange = { price = it },
-                label = { Text("قیمت", textAlign = TextAlign.End) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = discount,
-                onValueChange = { discount = it },
-                label = { Text("تخفیف (%)", textAlign = TextAlign.End) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        OutlinedTextField(
-            value = inventory,
-            onValueChange = { inventory = it },
-            label = { Text("موجودی", textAlign = TextAlign.End) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
-        )
-
-        Box {
-            OutlinedButton(
-                onClick = { expanded = true },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    Text(text = selectedCategory.displayName)
-                }
-            }
-
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                ProductCategory.entries.forEach { category ->
-                    DropdownMenuItem(onClick = {
-                        selectedCategory = category
-                        expanded = false
-                    }, text = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = category.iconResId),
-                                contentDescription = category.displayName,
-                                modifier = Modifier.size(28.dp)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = category.displayName,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .background(IceMist, CircleShape)
+                        .padding(9.dp)
+                        .clickable {
+                            navController.navigate(NavigationScreen.Admin.route) {
+                                popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
-                    })
-                }
-            }
-        }
-
-        Button(
-            onClick = {
-                val imagePath = selectedImageUri?.let { uri ->
-                    saveImageToInternalStorage(navController.context, uri)
-                }
-                val product = Product(
-                    id = currentProduct?.id,
-                    name = name,
-                    description = description,
-                    price = price.toIntOrNull() ?: 0,
-                    discount = discount.toIntOrNull() ?: 0,
-                    inventory = inventory.toIntOrNull() ?: 0,
-                    categoryId = selectedCategory.id,
-                    imageUrl = imagePath ?: ""
                 )
-
-                if (currentProduct == null) {
-                    addProductViewModel.addProduct(
-                        product,
-                        onSuccess = {
-                            navController.navigate(NavigationScreen.Admin.route) {
-                                popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        },
-                        onError = {}
-                    )
-                } else {
-                    addProductViewModel.updateProduct(
-                        product,
-                        onSuccess = {
-                            navController.navigate(NavigationScreen.Admin.route) {
-                                popUpTo(NavigationScreen.Admin.route) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        },
-                        onError = {}
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            enabled = !isLoading
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
+                Text(
+                    text = if (currentProduct == null) "افزودن محصول جدید" else "ویرایش محصول",
+                    style = MaterialTheme.typography.titleLarge
                 )
-            } else {
-                Text(text = "ذخیره محصول", fontSize = 18.sp)
             }
-        }
 
-        if (currentProduct != null) {
-            var showDialog by remember { mutableStateOf(false) }
-            Button(
-                onClick = { showDialog = true },
+            GalleryImagePickerProduct(
+                selectedImageUri = selectedImageUri,
+                onImageSelected = { selectedImageUri = it }
+            )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("نام محصول", textAlign = TextAlign.End) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) { Text(text = "حذف محصول", color = MaterialTheme.colorScheme.onError) }
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+            )
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("توضیحات", textAlign = TextAlign.End) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+            )
 
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = {
-                        Text(
-                            "حذف محصول",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
-                        )
-                    },
-                    text = {
-                        Text(
-                            "آیا مطمئن هستید می‌خواهید این محصول را حذف کنید؟",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            currentProduct?.let {
-                                addProductViewModel.deleteProduct(
-                                    it,
-                                    onSuccess = {
-                                        navController.navigate(NavigationScreen.Admin.route) {
-                                            popUpTo(NavigationScreen.Admin.route) {
-                                                inclusive = true
-                                            }
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    onError = { }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text("قیمت", textAlign = TextAlign.End) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = discount,
+                    onValueChange = { discount = it },
+                    label = { Text("تخفیف (%)", textAlign = TextAlign.End) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            OutlinedTextField(
+                value = inventory,
+                onValueChange = { inventory = it },
+                label = { Text("موجودی", textAlign = TextAlign.End) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+            )
+
+            Box {
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                        Text(text = selectedCategory.displayName)
+                    }
+                }
+
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    ProductCategory.entries.forEach { category ->
+                        DropdownMenuItem(onClick = {
+                            selectedCategory = category
+                            expanded = false
+                        }, text = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = painterResource(id = category.iconResId),
+                                    contentDescription = category.displayName,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = category.displayName,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
                                 )
                             }
-                            showDialog = false
-                        }) { Text("بله") }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDialog = false }) { Text("خیر") }
+                        })
                     }
-                )
+                }
+            }
+
+            Button(
+                onClick = {
+                    val imagePath = selectedImageUri?.let { uri ->
+                        saveImageToInternalStorage(navController.context, uri)
+                    }
+                    val product = Product(
+                        id = currentProduct?.id,
+                        name = name,
+                        description = description,
+                        price = price.toIntOrNull() ?: 0,
+                        discount = discount.toIntOrNull() ?: 0,
+                        inventory = inventory.toIntOrNull() ?: 0,
+                        categoryId = selectedCategory.id,
+                        imageUrl = imagePath ?: ""
+                    )
+
+                    if (currentProduct == null) {
+                        addProductViewModel.addProduct(
+                            product,
+                            onSuccess = {
+                                navController.navigate(NavigationScreen.Admin.route) {
+                                    popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onError = {}
+                        )
+                    } else {
+                        addProductViewModel.updateProduct(
+                            product,
+                            onSuccess = {
+                                navController.navigate(NavigationScreen.Admin.route) {
+                                    popUpTo(NavigationScreen.Admin.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onError = {}
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                enabled = !isLoadingAdd
+            ) {
+                if (isLoadingAdd) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(text = "ذخیره محصول", fontSize = 18.sp)
+                }
+            }
+
+            if (currentProduct != null) {
+                var showDialog by remember { mutableStateOf(false) }
+                Button(
+                    onClick = { showDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    enabled = !isLoadingDelete,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    if (isLoadingDelete)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    else
+                        Text(text = "حذف محصول", color = MaterialTheme.colorScheme.onError)
+                }
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = {
+                            Text(
+                                "حذف محصول",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
+                            )
+                        },
+                        text = {
+                            Text(
+                                "آیا مطمئن هستید می‌خواهید این محصول را حذف کنید؟",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                currentProduct?.let {
+                                    addProductViewModel.deleteProduct(
+                                        it,
+                                        onSuccess = {
+                                            navController.navigate(NavigationScreen.Admin.route) {
+                                                popUpTo(NavigationScreen.Admin.route) {
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        },
+                                        onError = { }
+                                    )
+                                }
+                                showDialog = false
+                            }) { Text("بله") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDialog = false }) { Text("خیر") }
+                        }
+                    )
+                }
             }
         }
-    }
 }

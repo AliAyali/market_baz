@@ -16,9 +16,14 @@ class FirebaseProductRepositoryImpl @Inject constructor(
     private val productsCollection = firestore.collection("products")
 
     override suspend fun insertProducts(product: Product) {
-        val docRef = productsCollection.add(product).await()
-        val generatedId = docRef.id
-        docRef.update("id", generatedId).await()
+        productsCollection.add(product)
+            .addOnSuccessListener { docRef ->
+                val generatedId = docRef.id
+                docRef.update("id", generatedId)
+            }
+            .addOnFailureListener { exception ->
+                println("Error inserting product: ${exception.message}")
+            }
     }
 
     override suspend fun getProductsWithDiscount(): List<Product> {
@@ -55,14 +60,28 @@ class FirebaseProductRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateProduct(product: Product) {
-        product.id?.let {
-            productsCollection.document(it).set(product).await()
+        product.id?.let { id ->
+            productsCollection.document(id)
+                .set(product)
+                .addOnSuccessListener {
+                    println("Product updated successfully")
+                }
+                .addOnFailureListener { exception ->
+                    println("Error updating product: ${exception.message}")
+                }
         }
     }
 
     override suspend fun deleteProduct(product: Product) {
-        product.id?.let {
-            productsCollection.document(it).delete().await()
+        product.id?.let { id ->
+            productsCollection.document(id)
+                .delete()
+                .addOnSuccessListener {
+                    println("Product deleted successfully")
+                }
+                .addOnFailureListener { exception ->
+                    println("Error deleting product: ${exception.message}")
+                }
         }
     }
 

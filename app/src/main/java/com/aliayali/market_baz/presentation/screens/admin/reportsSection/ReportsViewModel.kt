@@ -18,6 +18,8 @@ class ReportsViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
 ) : ViewModel() {
 
+    private var _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
     private val _userCount = MutableStateFlow(0)
     val userCount: StateFlow<Int> = _userCount
 
@@ -29,9 +31,11 @@ class ReportsViewModel @Inject constructor(
 
     fun loadReports() {
         viewModelScope.launch {
+            _isLoading.value = true
             _userCount.value = userRepository.getUsersCount()
             _productCount.value = productRepository.getProductsCount()
             _commentCount.value = commentRepository.getCommentsCount()
+            _isLoading.value = false
         }
     }
 
