@@ -29,7 +29,7 @@ class ShoppingCardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getItemByProductId(
-        productId: Int,
+        productId: String,
         userPhone: String,
     ): ShoppingCardEntity? {
         val list = dao.getAllItems(userPhone).first()

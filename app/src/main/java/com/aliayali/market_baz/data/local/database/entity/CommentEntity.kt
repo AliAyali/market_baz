@@ -8,7 +8,7 @@ import com.aliayali.market_baz.data.local.database.MyDataBase
 data class CommentEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val productId: Int,
+    val productId: String,
     val username: String,
     val userPhone: String,
     val detail: String,

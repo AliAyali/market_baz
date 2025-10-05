@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "590278209775",
+    "project_id": "marketbaz-70ea0",
+    "storage_bucket": "marketbaz-70ea0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590278209775:android:982bc7bdac5ef68aabeb1a",
+        "android_client_info": {
+          "package_name": "com.aliayali.market_baz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBf2Y7xZMA2WXSxUu29c9qTuriD-FcFL0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

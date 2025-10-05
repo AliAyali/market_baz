@@ -1,10 +1,10 @@
 package com.aliayali.market_baz.di
 
+import com.aliayali.market_baz.data.remote.firebase.FirebaseProductRepositoryImpl
 import com.aliayali.market_baz.data.repository.AddressRepositoryImpl
 import com.aliayali.market_baz.data.repository.CommentRepositoryImpl
 import com.aliayali.market_baz.data.repository.FavoriteRepositoryImpl
 import com.aliayali.market_baz.data.repository.OrderRepositoryImpl
-import com.aliayali.market_baz.data.repository.ProductRepositoryImpl
 import com.aliayali.market_baz.data.repository.RatingRepositoryImpl
 import com.aliayali.market_baz.data.repository.ShoppingCardRepositoryImpl
 import com.aliayali.market_baz.data.repository.UserRepositoryImpl
@@ -20,6 +20,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,11 +30,6 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl,
     ): UserRepository
-
-    @Binds
-    abstract fun bindProductRepository(
-        productRepositoryImpl: ProductRepositoryImpl,
-    ): ProductRepository
 
     @Binds
     abstract fun bindShoppingCardRepository(
@@ -64,4 +60,15 @@ abstract class RepositoryModule {
     abstract fun bindOrderRepository(
         orderRepositoryImpl: OrderRepositoryImpl,
     ): OrderRepository
+
+    /*@Binds
+    @Named("roomRepo")
+    abstract fun bindProductRepository(
+        productRepositoryImpl: ProductRepositoryImpl,
+    ): ProductRepository*/
+
+    @Binds
+    abstract fun bindProductRepository(
+        firebaseProductRepositoryImpl: FirebaseProductRepositoryImpl,
+    ): ProductRepository
 }

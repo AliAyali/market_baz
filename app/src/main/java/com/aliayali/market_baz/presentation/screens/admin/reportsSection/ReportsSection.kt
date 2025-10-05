@@ -34,6 +34,7 @@ fun ReportsSection(
     val userCount = reportsViewModel.userCount.collectAsState()
     val productCount = reportsViewModel.productCount.collectAsState()
     val commentCount = reportsViewModel.commentCount.collectAsState()
+    val isLoading = reportsViewModel.isLoading.collectAsState()
     LaunchedEffect(Unit) {
         reportsViewModel.loadReports()
     }
@@ -76,13 +77,25 @@ fun ReportsSection(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                ReportCard(title = "تعداد کاربران", value = userCount.value.toString())
+                ReportCard(
+                    title = "تعداد کاربران",
+                    value = userCount.value.toString(),
+                    isLoading.value
+                )
             }
             item {
-                ReportCard(title = "تعداد کالاها", value = productCount.value.toString())
+                ReportCard(
+                    title = "تعداد کالاها",
+                    value = productCount.value.toString(),
+                    isLoading.value
+                )
             }
             item {
-                ReportCard(title = "تعداد نظرها", value = commentCount.value.toString())
+                ReportCard(
+                    title = "تعداد نظرها",
+                    value = commentCount.value.toString(),
+                    isLoading.value
+                )
             }
         }
     }

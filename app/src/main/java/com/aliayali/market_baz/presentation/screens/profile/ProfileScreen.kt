@@ -177,7 +177,7 @@ fun ProfileScreen(
                         TextButton(
                             onClick = {
                                 alertDialog = false
-                                profileViewModel.loginState(false) // استفاده از متد VM
+                                profileViewModel.loginState(false)
                                 navController.navigate(NavigationScreen.Login.route) {
                                     popUpTo(NavigationScreen.Profile.route) { inclusive = true }
                                     launchSingleTop = true

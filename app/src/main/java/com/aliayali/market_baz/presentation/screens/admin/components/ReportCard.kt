@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 fun ReportCard(
     title: String,
     value: String,
+    isLoading: Boolean,
     icon: ImageVector = Icons.Default.Info,
     backgroundColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
     iconColor: Color = MaterialTheme.colorScheme.primary,
@@ -63,11 +65,14 @@ fun ReportCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                if (isLoading)
+                    CircularProgressIndicator()
+                else
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
             }
         }
     }
